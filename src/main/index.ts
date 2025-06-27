@@ -2,7 +2,7 @@
 // other which should be run before the main process is ready
 // eslint-disable-next-line
 import './bootstrap'
-
+import './start'
 import '@main/config'
 
 import { electronApp, optimizer } from '@electron-toolkit/utils'
