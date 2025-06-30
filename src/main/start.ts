@@ -1,6 +1,8 @@
 import { ChildProcess, spawn } from 'child_process'
 import { app } from 'electron'
 import logger from 'electron-log'
+
+import { getResourcePath } from './utils'
 const fs = require('fs')
 const net = require('net')
 const path = require('path')
@@ -9,19 +11,12 @@ const executable = process.platform === 'win32' ? 'ollama.exe' : 'ollama'
 // const os = process.platform === 'win32' ? 'win' : 'mac'
 const port = 11434
 
-let ollmaPath: string
-let binPath: string
 // let ollamaModelsPath: string
 
-if (app.isPackaged) {
-  ollmaPath = path.join(process.resourcesPath, 'ollama')
-  binPath = path.join(ollmaPath, 'bin')
-  // ollamaModelsPath = path.join(ollmaPath, 'models')
-} else {
-  ollmaPath = path.join(__dirname, '..', '..', 'ollama')
-  binPath = path.join(process.cwd(), 'resources', 'ollama')
-  // ollamaModelsPath = path.join(ollmaPath, 'models')
-}
+// 使用统一的资源路径处理
+const resourcesPath = getResourcePath()
+const ollmaPath: string = path.join(resourcesPath, 'ollama')
+const binPath: string = path.join(ollmaPath, 'bin')
 
 // 检查端口是否被占用
 const isPortInUse = (port: number): Promise<boolean> => {
@@ -43,7 +38,7 @@ const runOllama = async (): Promise<ChildProcess | null> => {
   const portInUse = await isPortInUse(port)
 
   if (portInUse) {
-    logger.log('Ollama is already running on port port')
+    logger.log('Ollama is already running on port', port)
     return null // 返回 null 表示没有启动新的进程
   }
 
