@@ -18,6 +18,7 @@ import {
   CircleHelp,
   FileSearch,
   Folder,
+  HardDrive,
   Languages,
   LayoutGrid,
   MessageSquare,
@@ -26,8 +27,7 @@ import {
   Settings,
   Sparkle,
   Sun,
-  SunMoon,
-  Upload
+  SunMoon
 } from 'lucide-react'
 import { FC, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -157,7 +157,7 @@ const MainMenus: FC = () => {
     minapp: <LayoutGrid size={18} className="icon" />,
     knowledge: <FileSearch size={18} className="icon" />,
     files: <Folder size={17} className="icon" />,
-    ollama: <Upload size={18} className="icon" />
+    ollama: <HardDrive size={18} className="icon" />
   }
 
   const pathMap = {
@@ -174,9 +174,10 @@ const MainMenus: FC = () => {
   return sidebarIcons.visible.map((icon) => {
     const path = pathMap[icon]
     const isActive = path === '/' ? isRoute(path) : isRoutes(path)
+    const tooltipTitle = icon === 'ollama' ? 'Local' : t(`${icon}.title`)
 
     return (
-      <Tooltip key={icon} title={t(`${icon}.title`)} mouseEnterDelay={0.8} placement="right">
+      <Tooltip key={icon} title={tooltipTitle} mouseEnterDelay={0.8} placement="right">
         <StyledLink
           onClick={async () => {
             hideMinappPopup()

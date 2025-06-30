@@ -108,7 +108,7 @@ const OllamaPage: FC = () => {
     }
   }, [clickTimeout])
 
-  // 检查 Ollama 连接状态
+  // 检查本地模型服务连接状态
   const checkConnection = useCallback(async () => {
     setCheckingConnection(true)
     try {
@@ -149,7 +149,7 @@ const OllamaPage: FC = () => {
       const models: AvailableModel[] = JSON.parse(modelsData)
       setAvailableModels(models)
     } catch (error) {
-      console.error('Failed to load ollama models from JSON:', error)
+      console.error('Failed to load local models from JSON:', error)
       // 如果读取文件失败，使用默认的空数组
       setAvailableModels([])
     }
@@ -411,7 +411,7 @@ const OllamaPage: FC = () => {
         <NavbarCenter style={{ borderRight: 'none' }}>
           <Flex align="center" gap={12}>
             <Server size={20} />
-            Ollama 本地模型管理
+            本地模型管理
           </Flex>
         </NavbarCenter>
       </Navbar>
@@ -495,8 +495,8 @@ const OllamaPage: FC = () => {
 
             {!isConnected && (
               <Alert
-                message="无法连接到 Ollama 服务"
-                description="请确保 Ollama 服务已启动，并检查 API 地址设置是否正确。"
+                message="无法连接到本地模型服务"
+                description="请确保本地模型服务已启动，并检查 API 地址设置是否正确。"
                 type="warning"
                 showIcon
                 style={{ marginBottom: 24 }}
