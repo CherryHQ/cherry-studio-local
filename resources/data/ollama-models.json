@@ -1,0 +1,58 @@
+[
+  {
+    "name": "llama3.2:3b",
+    "description": "Llama 3.2 3B model - Fast and efficient for most tasks",
+    "tags": ["3B", "Meta", "General"],
+    "size": "2.0GB",
+    "pullable": true
+  },
+  {
+    "name": "llama3.2:1b",
+    "description": "Llama 3.2 1B model - Ultra-fast model for simple tasks",
+    "tags": ["1B", "Meta", "Lightweight"],
+    "size": "1.3GB",
+    "pullable": true
+  },
+  {
+    "name": "qwen2.5:7b",
+    "description": "Qwen2.5 7B model - Excellent for Chinese and English",
+    "tags": ["7B", "Alibaba", "Multilingual"],
+    "size": "4.7GB",
+    "pullable": true
+  },
+  {
+    "name": "qwen2.5:3b",
+    "description": "Qwen2.5 3B model - Compact multilingual model",
+    "tags": ["3B", "Alibaba", "Multilingual"],
+    "size": "2.0GB",
+    "pullable": true
+  },
+  {
+    "name": "deepseek-r1:7b",
+    "description": "DeepSeek R1 7B model - Advanced reasoning capabilities",
+    "tags": ["7B", "DeepSeek", "Reasoning"],
+    "size": "4.9GB",
+    "pullable": true
+  },
+  {
+    "name": "phi3:mini",
+    "description": "Phi-3 Mini model - Microsoft's efficient small model",
+    "tags": ["3.8B", "Microsoft", "Efficient"],
+    "size": "2.3GB",
+    "pullable": true
+  },
+  {
+    "name": "codellama:7b",
+    "description": "Code Llama 7B - Specialized for code generation",
+    "tags": ["7B", "Meta", "Code"],
+    "size": "3.8GB",
+    "pullable": true
+  },
+  {
+    "name": "mistral:7b",
+    "description": "Mistral 7B model - High performance general model",
+    "tags": ["7B", "Mistral", "General"],
+    "size": "4.1GB",
+    "pullable": true
+  }
+] 

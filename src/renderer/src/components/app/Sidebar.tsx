@@ -26,7 +26,8 @@ import {
   Settings,
   Sparkle,
   Sun,
-  SunMoon
+  SunMoon,
+  Upload
 } from 'lucide-react'
 import { FC, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -155,7 +156,8 @@ const MainMenus: FC = () => {
     translate: <Languages size={18} className="icon" />,
     minapp: <LayoutGrid size={18} className="icon" />,
     knowledge: <FileSearch size={18} className="icon" />,
-    files: <Folder size={17} className="icon" />
+    files: <Folder size={17} className="icon" />,
+    ollama: <Upload size={18} className="icon" />
   }
 
   const pathMap = {
@@ -165,7 +167,8 @@ const MainMenus: FC = () => {
     translate: '/translate',
     minapp: '/apps',
     knowledge: '/knowledge',
-    files: '/files'
+    files: '/files',
+    ollama: '/ollama'
   }
 
   return sidebarIcons.visible.map((icon) => {
