@@ -1,4 +1,4 @@
-import { ChildProcess, exec } from 'child_process'
+import { ChildProcess, spawn } from 'child_process'
 import { app } from 'electron'
 import logger from 'electron-log'
 const fs = require('fs')
@@ -7,7 +7,7 @@ const path = require('path')
 
 const executable = process.platform === 'win32' ? 'ollama.exe' : 'ollama'
 // const os = process.platform === 'win32' ? 'win' : 'mac'
-const port = 15537
+const port = 11434
 
 let ollmaPath: string
 let binPath: string
@@ -60,31 +60,46 @@ const runOllama = async (): Promise<ChildProcess | null> => {
   }
 
   // 设置环境变量
-  // const env = {
-  //   ...process.env,
-  //   OLLAMA_MODELS: ollamaModelsPath,
-  //   OLLAMA_HOST: `0.0.0.0:${port}`
-  // }
+  const env = {
+    ...process.env,
+    OLLAMA_NUM_GPU: '999',
+    no_proxy: 'localhost,127.0.0.1',
+    ZES_ENABLE_SYSMAN: '1',
+    SYCL_CACHE_PERSISTENT: '1',
+    OLLAMA_KEEP_ALIVE: '10m',
+    OLLAMA_HOST: `127.0.0.1:${port}`
+  }
 
-  const ollamaProcess = exec(ollamaExecutable)
   // 运行 Ollama
-  // const ollamaProcess = spawn(ollamaExecutable, ['serve'], {
-  //   stdio: 'pipe',
-  //   detached: false,
-  //   env: env,
-  //   windowsHide: true
-  // })
+  const ollamaProcess = spawn(ollamaExecutable, ['serve'], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+    detached: false,
+    env: env,
+    windowsHide: true,
+    cwd: binPath // 设置工作目录为 ollama.exe 所在目录
+  })
 
   // 处理输出
-  ollamaProcess.stdout?.on('data', (data: Buffer) => {
+  ollamaProcess.stdout?.setEncoding('utf8')
+  ollamaProcess.stderr?.setEncoding('utf8')
+
+  ollamaProcess.stdout?.on('data', (data: string) => {
+    console.log(`Ollama: ${data.toString().trim()}`)
     logger.log(`Ollama stdout: ${data}`)
   })
 
-  ollamaProcess.stderr?.on('data', (data: Buffer) => {
+  ollamaProcess.stderr?.on('data', (data: string) => {
+    console.error(`Ollama Error: ${data.toString().trim()}`)
     logger.error(`Ollama stderr: ${data}`)
   })
 
+  ollamaProcess.on('error', (error) => {
+    console.error('Failed to start Ollama:', error)
+    logger.error('Failed to start Ollama:', error)
+  })
+
   ollamaProcess.on('close', (code: number | null) => {
+    console.log(`Ollama process exited with code ${code}`)
     logger.log(`Ollama process exited with code ${code}`)
   })
 
@@ -97,21 +112,25 @@ async function start() {
     const ollamaProcess = await runOllama()
 
     if (ollamaProcess) {
+      console.log('Ollama has been started')
       logger.log('Ollama has been started')
 
       // 如果需要在应用退出时关闭 Ollama，可以添加以下代码：
       app.on('will-quit', () => {
         if (ollamaProcess) {
           ollamaProcess.kill()
+          console.log('Ollama serve is quit')
           logger.log('Ollama serve is quit')
         }
       })
     } else {
+      console.log('Ollama was already running, no new process started')
       logger.log('Ollama was already running, no new process started')
     }
 
     // 可以在这里添加其他的初始化代码
   } catch (error) {
+    console.error('Error running Ollama:', error)
     logger.error('Error running Ollama:', error)
   }
 }
