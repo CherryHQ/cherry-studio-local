@@ -16,7 +16,7 @@ const port = 11434
 // 使用统一的资源路径处理
 const resourcesPath = getResourcePath()
 const ollmaPath: string = path.join(resourcesPath, 'ollama')
-const binPath: string = path.join(ollmaPath, 'bin')
+const binPath: string = ollmaPath
 
 // 检查端口是否被占用
 const isPortInUse = (port: number): Promise<boolean> => {
