@@ -11,6 +11,7 @@ electronLanguages:
   - en # for macOS
 directories:
   buildResources: build
+asar: false
 files:
   - '**/*'
   - '!**/{.vscode,.yarn,.yarn-lock,.github,.cursorrules,.prettierrc}'
