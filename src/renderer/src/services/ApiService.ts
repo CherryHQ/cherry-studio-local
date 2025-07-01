@@ -541,7 +541,8 @@ export async function fetchGenerate({ prompt, content }: { prompt: string; conte
 
 function hasApiKey(provider: Provider) {
   if (!provider) return false
-  if (provider.id === 'ollama' || provider.id === 'lmstudio' || provider.type === 'vertexai') return true
+  if (provider.id === 'ollama' || provider.id === 'lmstudio' || provider.id === 'local' || provider.type === 'vertexai')
+    return true
   return !isEmpty(provider.apiKey)
 }
 
