@@ -227,7 +227,7 @@ const OllamaPage: FC = () => {
                   if (!isEmpty(newModel.name)) {
                     addModelToLocal(newModel)
                     syncedModelsRef.current.add(modelId)
-                    console.log('Added Ollama model to local provider:', newModel.name)
+                    console.log(`✅ 已将 Ollama 模型 "${newModel.name}" 自动添加到本地模型库`)
                   }
                 }
               }
@@ -341,7 +341,7 @@ const OllamaPage: FC = () => {
                   setDownloadProgress((prev) => new Map(prev).set(modelName, data))
 
                   if (data.status === 'success') {
-                    window.message.success(`模型 ${modelName} 下载完成`)
+                    window.message.success(`模型 ${modelName} 下载完成，已自动添加到本地模型库`)
                     fetchInstalledModels()
                     setDownloadingModels((prev) => {
                       const next = new Set(prev)
@@ -399,6 +399,7 @@ const OllamaPage: FC = () => {
   const deleteModel = useCallback(
     async (modelName: string) => {
       try {
+        setLoading(true) // 添加删除时的加载状态
         const response = await fetch(`${apiHost}/api/delete`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -408,12 +409,17 @@ const OllamaPage: FC = () => {
         if (response.ok) {
           window.message.success(`模型 ${modelName} 删除成功`)
           fetchInstalledModels()
+          // 同时从同步记录中移除模型
+          syncedModelsRef.current.delete(modelName)
+          console.log(`🗑️ 已将 Ollama 模型 "${modelName}" 从同步记录中移除`)
         } else {
           throw new Error('Delete failed')
         }
       } catch (error) {
         console.error('Failed to delete model:', error)
         window.message.error(`删除模型失败: ${error}`)
+      } finally {
+        setLoading(false)
       }
     },
     [apiHost, fetchInstalledModels]
@@ -615,18 +621,7 @@ const OllamaPage: FC = () => {
             )}
 
             {/* 当配置区域隐藏时显示的提示 */}
-            {!showConfig && (
-              <Card
-                style={{ marginBottom: 24, textAlign: 'center', background: '#fafafa' }}
-                styles={{ body: { padding: '16px' } }}>
-                <Space direction="vertical" size="small">
-                  <Flex align="center" justify="center" gap={8}>
-                    <Settings size={18} onClick={handleConfigIconClick} />
-                    <Text type="secondary">高级配置</Text>
-                  </Flex>
-                </Space>
-              </Card>
-            )}
+            {!showConfig && <div onClick={handleConfigIconClick} style={{ height: '10px', marginBottom: 24 }} />}
 
             {!isConnected && (
               <Alert
@@ -674,11 +669,34 @@ const OllamaPage: FC = () => {
                                   size="small"
                                   danger
                                   icon={<Trash2 size={14} />}
+                                  loading={loading}
                                   onClick={() => {
+                                    const modelSize = formatSize(model.size)
+                                    const modelInfo = model.details?.parameter_size || '未知参数量'
+
                                     window.modal.confirm({
-                                      title: '确认删除',
-                                      content: `确定要删除模型 ${model.name} 吗？`,
-                                      onOk: () => deleteModel(model.name)
+                                      content: (
+                                        <div>
+                                          <p style={{ marginBottom: 12 }}>
+                                            您确定要删除模型 <strong>{model.name}</strong> 吗？
+                                          </p>
+                                          <div style={{ fontSize: '13px', color: '#666' }}>
+                                            <div>• 模型大小: {modelSize}</div>
+                                            <div>• 参数规模: {modelInfo}</div>
+                                            <div>• 修改时间: {formatDate(model.modified_at)}</div>
+                                          </div>
+                                        </div>
+                                      ),
+                                      okText: '确认删除',
+                                      cancelText: '取消',
+                                      okType: 'danger',
+                                      icon: null,
+                                      centered: true,
+                                      maskClosable: false,
+                                      onOk: () => deleteModel(model.name),
+                                      onCancel: () => {
+                                        console.log('用户取消删除模型:', model.name)
+                                      }
                                     })
                                   }}
                                 />
