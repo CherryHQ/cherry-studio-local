@@ -35,16 +35,6 @@ export interface LlmState {
 
 export const INITIAL_PROVIDERS: Provider[] = [
   {
-    id: 'silicon',
-    name: 'Silicon',
-    type: 'openai',
-    apiKey: '',
-    apiHost: 'https://api.siliconflow.cn',
-    models: SYSTEM_MODELS.silicon,
-    isSystem: true,
-    enabled: true
-  },
-  {
     id: 'local',
     name: 'local',
     type: 'openai',
@@ -53,6 +43,16 @@ export const INITIAL_PROVIDERS: Provider[] = [
     models: SYSTEM_MODELS.local,
     isSystem: true,
     enabled: true
+  },
+  {
+    id: 'silicon',
+    name: 'Silicon',
+    type: 'openai',
+    apiKey: '',
+    apiHost: 'https://api.siliconflow.cn',
+    models: SYSTEM_MODELS.silicon,
+    isSystem: true,
+    enabled: false
   },
   {
     id: 'aihubmix',
@@ -194,7 +194,6 @@ export const INITIAL_PROVIDERS: Provider[] = [
     isSystem: true,
     enabled: false
   },
-
   {
     id: 'lmstudio',
     name: 'LM Studio',

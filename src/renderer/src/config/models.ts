@@ -413,31 +413,31 @@ export const SYSTEM_MODELS: Record<string, Model[]> = {
   defaultModel: [
     {
       // 默认助手模型
-      id: 'deepseek-ai/DeepSeek-V3',
-      name: 'deepseek-ai/DeepSeek-V3',
-      provider: 'silicon',
-      group: 'deepseek-ai'
+      id: 'qwen2.5:3b',
+      name: 'qwen2.5:3b',
+      provider: 'local',
+      group: 'qwen2'
     },
     {
       // 默认话题命名模型
-      id: 'Qwen/Qwen3-8B',
-      name: 'Qwen/Qwen3-8B',
-      provider: 'silicon',
-      group: 'Qwen'
+      id: 'qwen2.5:3b',
+      name: 'qwen2.5:3b',
+      provider: 'local',
+      group: 'qwen2'
     },
     {
       // 默认翻译模型
-      id: 'deepseek-ai/DeepSeek-V3',
-      name: 'deepseek-ai/DeepSeek-V3',
-      provider: 'silicon',
-      group: 'deepseek-ai'
+      id: 'qwen2.5:3b',
+      name: 'qwen2.5:3b',
+      provider: 'local',
+      group: 'qwen2'
     },
     {
       // 默认快捷助手模型
-      id: 'deepseek-ai/DeepSeek-V3',
-      name: 'deepseek-ai/DeepSeek-V3',
-      provider: 'silicon',
-      group: 'deepseek-ai'
+      id: 'qwen2.5:3b',
+      name: 'qwen2.5:3b',
+      provider: 'local',
+      group: 'qwen2'
     }
   ],
   '302ai': [
