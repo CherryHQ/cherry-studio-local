@@ -45,6 +45,16 @@ export const INITIAL_PROVIDERS: Provider[] = [
     enabled: true
   },
   {
+    id: 'local',
+    name: 'local',
+    type: 'openai',
+    apiKey: '',
+    apiHost: 'http://localhost:11434',
+    models: SYSTEM_MODELS.local,
+    isSystem: true,
+    enabled: true
+  },
+  {
     id: 'aihubmix',
     name: 'AiHubMix',
     type: 'openai',
@@ -184,6 +194,7 @@ export const INITIAL_PROVIDERS: Provider[] = [
     isSystem: true,
     enabled: false
   },
+
   {
     id: 'lmstudio',
     name: 'LM Studio',

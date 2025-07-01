@@ -61,6 +61,7 @@ const PROVIDER_LOGO_MAP = {
   groq: GroqProviderLogo,
   zhipu: ZhipuProviderLogo,
   ollama: OllamaProviderLogo,
+  local: OllamaProviderLogo,
   lmstudio: LMStudioProviderLogo,
   moonshot: MoonshotProviderLogo,
   openrouter: OpenRouterProviderLogo,
@@ -428,6 +429,16 @@ export const PROVIDER_CONFIG = {
     }
   },
   ollama: {
+    api: {
+      url: 'http://localhost:11434'
+    },
+    websites: {
+      official: 'https://ollama.com/',
+      docs: 'https://github.com/ollama/ollama/tree/main/docs',
+      models: 'https://ollama.com/library'
+    }
+  },
+  local: {
     api: {
       url: 'http://localhost:11434'
     },

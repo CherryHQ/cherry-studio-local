@@ -1035,7 +1035,8 @@
       "tokenflux": "TokenFlux",
       "302ai": "302.AI",
       "lanyun": "蓝耘科技",
-      "vertexai": "Vertex AI"
+      "vertexai": "Vertex AI",
+      "local": "local"
     },
     "restore": {
       "confirm": "确定要恢复数据吗？",

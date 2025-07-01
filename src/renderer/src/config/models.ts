@@ -729,6 +729,7 @@ export const SYSTEM_MODELS: Record<string, Model[]> = {
     }
   ],
   ollama: [],
+  local: [],
   lmstudio: [],
   silicon: [
     {
