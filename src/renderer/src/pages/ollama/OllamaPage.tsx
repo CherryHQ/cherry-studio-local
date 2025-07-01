@@ -5,6 +5,8 @@ import { useProvider } from '@renderer/hooks/useProvider'
 import { useRuntime } from '@renderer/hooks/useRuntime'
 import { useAppDispatch, useAppSelector } from '@renderer/store'
 import { setOllamaKeepAliveTime } from '@renderer/store/llm'
+import { Model } from '@renderer/types'
+import { getDefaultGroupName } from '@renderer/utils'
 import {
   Alert,
   Button,
@@ -22,11 +24,55 @@ import {
   Tooltip,
   Typography
 } from 'antd'
+import { isEmpty } from 'lodash'
 import { CheckCircle, Download, RefreshCw, Server, Settings, Trash2, X } from 'lucide-react'
-import { FC, useCallback, useEffect, useState } from 'react'
+import { Component, ErrorInfo, FC, useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 const { Text, Paragraph } = Typography
+
+// 错误边界组件
+class ErrorBoundary extends Component<
+  { children: React.ReactNode; fallback?: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('OllamaPage Error Boundary caught an error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        this.props.fallback || (
+          <div style={{ padding: '24px', textAlign: 'center' }}>
+            <Alert
+              message="页面渲染出错"
+              description="页面遇到了一些问题，请刷新页面重试。"
+              type="error"
+              showIcon
+              action={
+                <Button size="small" onClick={() => window.location.reload()}>
+                  刷新页面
+                </Button>
+              }
+            />
+          </div>
+        )
+      )
+    }
+
+    return this.props.children
+  }
+}
 
 interface OllamaModel {
   name: string
@@ -60,9 +106,15 @@ const OllamaPage: FC = () => {
   const dispatch = useAppDispatch()
   const { resourcesPath } = useRuntime()
 
-  const { provider: ollamaProvider, updateProvider } = useProvider('ollama')
+  // 添加安全的 provider 获取
+  const ollamaProviderHook = useProvider('ollama')
+  const localProviderHook = useProvider('local')
+
+  const { provider: ollamaProvider, updateProvider } = ollamaProviderHook
+  const { provider: localProvider, addModel: addModelToLocal } = localProviderHook
   const { settings } = useAppSelector((state) => state.llm)
 
+  // 安全的状态初始化
   const [installedModels, setInstalledModels] = useState<OllamaModel[]>([])
   const [availableModels, setAvailableModels] = useState<AvailableModel[]>([])
   const [loading, setLoading] = useState(false)
@@ -75,6 +127,15 @@ const OllamaPage: FC = () => {
   const [showConfig, setShowConfig] = useState(false)
   const [clickCount, setClickCount] = useState(0)
   const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [renderError, setRenderError] = useState<string | null>(null)
+
+  // 使用 useRef 来追踪已同步的模型，避免依赖循环
+  const syncedModelsRef = useRef<Set<string>>(new Set())
+
+  // 渲染内容的包装器
+  const renderWithErrorBoundary = useCallback((content: React.ReactNode) => {
+    return <ErrorBoundary>{content}</ErrorBoundary>
+  }, [])
 
   // 处理设置图标点击
   const handleConfigIconClick = useCallback(() => {
@@ -128,14 +189,61 @@ const OllamaPage: FC = () => {
     setLoading(true)
     try {
       const response = await fetch(`${apiHost}/api/tags`)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const data = await response.json()
-      setInstalledModels(data.models || [])
+      const models = data.models || []
+      console.log('Fetched installed models:', models.length)
+
+      setInstalledModels(models)
+
+      // 分离模型同步逻辑，避免依赖循环
+      if (models.length > 0) {
+        // 使用 setTimeout 确保在下次事件循环中执行，避免阻塞当前渲染
+        setTimeout(() => {
+          models.forEach((model) => {
+            try {
+              // 直接检查和添加，不依赖外部函数
+              const modelId = model.name
+              if (!modelId || isEmpty(modelId)) {
+                console.warn('Invalid Ollama model:', model)
+                return
+              }
+
+              if (!syncedModelsRef.current.has(modelId) && localProvider?.models && addModelToLocal) {
+                const exists = localProvider.models.some((m) => m?.id === modelId)
+                if (!exists) {
+                  const newModel: Model = {
+                    id: modelId,
+                    name: model.name,
+                    provider: 'local',
+                    group: getDefaultGroupName(modelId, 'local'),
+                    description: `Ollama 本地模型${model.details?.parameter_size ? ` - ${model.details.parameter_size}` : ''}`,
+                    owned_by: 'ollama'
+                  }
+
+                  if (!isEmpty(newModel.name)) {
+                    addModelToLocal(newModel)
+                    syncedModelsRef.current.add(modelId)
+                    console.log('Added Ollama model to local provider:', newModel.name)
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Error adding model to local provider:', error)
+            }
+          })
+        }, 200) // 增加延迟，确保渲染完成
+      }
     } catch (error) {
       console.error('Failed to fetch installed models:', error)
+      setInstalledModels([]) // 确保有一个明确的状态
     } finally {
       setLoading(false)
     }
-  }, [apiHost, isConnected])
+  }, [apiHost, isConnected]) // 移除 addOllamaModelToLocal 依赖
 
   // 获取可下载的模型列表
   const fetchAvailableModels = useCallback(async () => {
@@ -318,14 +426,6 @@ const OllamaPage: FC = () => {
     }
   }, [ollamaProvider, apiHost, updateProvider])
 
-  // 更新 Keep Alive 时间
-  const updateKeepAliveTime = useCallback(
-    (value: number) => {
-      dispatch(setOllamaKeepAliveTime(value))
-    },
-    [dispatch]
-  )
-
   useEffect(() => {
     checkConnection()
   }, [checkConnection])
@@ -405,13 +505,48 @@ const OllamaPage: FC = () => {
   // 过滤出未安装的可下载模型
   const uninstalledModels = availableModels.filter((model) => !isModelInstalled(model.name))
 
-  return (
+  // 如果有渲染错误，显示错误信息
+  if (renderError) {
+    return (
+      <Container>
+        <Navbar>
+          <NavbarCenter style={{ borderRight: 'none' }}>
+            <Flex align="center" gap={12}>
+              <Server size={20} />
+              本地模型管理
+            </Flex>
+          </NavbarCenter>
+        </Navbar>
+        <MainContent>
+          <div style={{ padding: '24px' }}>
+            <Alert
+              message="页面部分功能异常"
+              description={renderError}
+              type="warning"
+              showIcon
+              action={<Button onClick={() => setRenderError(null)}>重试</Button>}
+            />
+          </div>
+        </MainContent>
+      </Container>
+    )
+  }
+
+  // 主渲染逻辑
+  return renderWithErrorBoundary(
     <Container>
       <Navbar>
         <NavbarCenter style={{ borderRight: 'none' }}>
           <Flex align="center" gap={12}>
             <Server size={20} />
             本地模型管理
+            <Button
+              type="text"
+              size="small"
+              icon={<Settings size={14} />}
+              onClick={handleConfigIconClick}
+              style={{ opacity: showConfig ? 1 : 0.6 }}
+            />
           </Flex>
         </NavbarCenter>
       </Navbar>
@@ -457,7 +592,7 @@ const OllamaPage: FC = () => {
                       <InputNumber
                         style={{ width: '100%' }}
                         value={settings.ollama.keepAliveTime}
-                        onChange={(value) => updateKeepAliveTime(value || 0)}
+                        onChange={(value) => dispatch(setOllamaKeepAliveTime(value || 0))}
                         min={0}
                         placeholder="0表示使用默认值"
                       />
@@ -483,7 +618,7 @@ const OllamaPage: FC = () => {
             {!showConfig && (
               <Card
                 style={{ marginBottom: 24, textAlign: 'center', background: '#fafafa' }}
-                bodyStyle={{ padding: '16px' }}>
+                styles={{ body: { padding: '16px' } }}>
                 <Space direction="vertical" size="small">
                   <Flex align="center" justify="center" gap={8}>
                     <Settings size={18} onClick={handleConfigIconClick} />
