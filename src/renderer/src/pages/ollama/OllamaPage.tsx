@@ -132,6 +132,9 @@ const OllamaPage: FC = () => {
   // 使用 useRef 来追踪已同步的模型，避免依赖循环
   const syncedModelsRef = useRef<Set<string>>(new Set())
 
+  // 使用 useRef 来追踪已完成下载的模型，避免重复提示
+  const completedDownloadsRef = useRef<Set<string>>(new Set())
+
   // 渲染内容的包装器
   const renderWithErrorBoundary = useCallback((content: React.ReactNode) => {
     return <ErrorBoundary>{content}</ErrorBoundary>
@@ -212,7 +215,12 @@ const OllamaPage: FC = () => {
                 return
               }
 
-              if (!syncedModelsRef.current.has(modelId) && localProvider?.models && addModelToLocal) {
+              // 检查是否已经在同步记录中
+              if (syncedModelsRef.current.has(modelId)) {
+                return // 已经处理过，跳过
+              }
+
+              if (localProvider?.models && addModelToLocal) {
                 const exists = localProvider.models.some((m) => m?.id === modelId)
                 if (!exists) {
                   const newModel: Model = {
@@ -229,6 +237,10 @@ const OllamaPage: FC = () => {
                     syncedModelsRef.current.add(modelId)
                     console.log(`✅ 已将 Ollama 模型 "${newModel.name}" 自动添加到本地模型库`)
                   }
+                } else {
+                  // 模型已存在于 local provider，只需要记录到同步列表
+                  syncedModelsRef.current.add(modelId)
+                  console.log(`📝 模型 "${modelId}" 已存在于本地模型库，已记录同步状态`)
                 }
               }
             } catch (error) {
@@ -269,6 +281,10 @@ const OllamaPage: FC = () => {
       const controller = downloadControllers.get(modelName)
       if (controller) {
         controller.abort()
+
+        // 清理下载完成记录
+        completedDownloadsRef.current.delete(modelName)
+
         setDownloadingModels((prev) => {
           const next = new Set(prev)
           next.delete(modelName)
@@ -295,6 +311,9 @@ const OllamaPage: FC = () => {
     async (modelName: string) => {
       // 创建新的 AbortController
       const controller = new AbortController()
+
+      // 清理该模型的完成记录，允许重新下载
+      completedDownloadsRef.current.delete(modelName)
 
       setDownloadingModels((prev) => new Set(prev).add(modelName))
       setDownloadProgress((prev) => new Map(prev).set(modelName, { status: 'starting' }))
@@ -341,8 +360,24 @@ const OllamaPage: FC = () => {
                   setDownloadProgress((prev) => new Map(prev).set(modelName, data))
 
                   if (data.status === 'success') {
+                    // 检查是否已经处理过这个模型的下载完成
+                    if (completedDownloadsRef.current.has(modelName)) {
+                      return // 已经处理过，避免重复提示
+                    }
+
+                    // 标记为已完成
+                    completedDownloadsRef.current.add(modelName)
+
                     window.message.success(`模型 ${modelName} 下载完成，已自动添加到本地模型库`)
-                    fetchInstalledModels()
+
+                    // 立即添加到同步记录，避免重复处理
+                    syncedModelsRef.current.add(modelName)
+
+                    // 延迟刷新，确保下载完全结束
+                    setTimeout(() => {
+                      fetchInstalledModels()
+                    }, 500)
+
                     setDownloadingModels((prev) => {
                       const next = new Set(prev)
                       next.delete(modelName)
@@ -411,6 +446,8 @@ const OllamaPage: FC = () => {
           fetchInstalledModels()
           // 同时从同步记录中移除模型
           syncedModelsRef.current.delete(modelName)
+          // 清理下载完成记录
+          completedDownloadsRef.current.delete(modelName)
           console.log(`🗑️ 已将 Ollama 模型 "${modelName}" 从同步记录中移除`)
         } else {
           throw new Error('Delete failed')

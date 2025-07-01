@@ -1,7 +1,6 @@
 import { Navbar, NavbarCenter } from '@renderer/components/app/Navbar'
 import ModelSettings from '@renderer/pages/settings/ModelSettings/ModelSettings'
 import {
-  Cloud,
   Command,
   Globe,
   HardDrive,
@@ -26,7 +25,6 @@ import DisplaySettings from './DisplaySettings/DisplaySettings'
 import GeneralSettings from './GeneralSettings'
 import MCPSettings from './MCPSettings'
 import { McpSettingsNavbar } from './MCPSettings/McpSettingsNavbar'
-import ProvidersList from './ProviderSettings'
 import QuickAssistantSettings from './QuickAssistantSettings'
 import QuickPhraseSettings from './QuickPhraseSettings'
 import SelectionAssistantSettings from './SelectionAssistantSettings/SelectionAssistantSettings'
@@ -47,12 +45,12 @@ const SettingsPage: FC = () => {
       </Navbar>
       <ContentContainer id="content-container">
         <SettingMenus>
-          <MenuItemLink to="/settings/provider">
+          {/* <MenuItemLink to="/settings/provider">
             <MenuItem className={isRoute('/settings/provider')}>
               <Cloud size={18} />
               {t('settings.provider.title')}
             </MenuItem>
-          </MenuItemLink>
+          </MenuItemLink> */}
           <MenuItemLink to="/settings/model">
             <MenuItem className={isRoute('/settings/model')}>
               <Package size={18} />
@@ -122,7 +120,7 @@ const SettingsPage: FC = () => {
         </SettingMenus>
         <SettingContent>
           <Routes>
-            <Route path="provider" element={<ProvidersList />} />
+            {/* <Route path="provider" element={<ProvidersList />} /> */}
             <Route path="model" element={<ModelSettings />} />
             <Route path="web-search" element={<WebSearchSettings />} />
             <Route path="mcp/*" element={<MCPSettings />} />
