@@ -1,16 +1,30 @@
 [
   {
-    "name": "Qwen3-4B",
-    "description": "Qwen2.5 7B model - Excellent for Chinese and English",
-    "tags": ["7B", "Alibaba", "Multilingual"],
+    "name": "qwen3:4b",
+    "description": "Qwen3 4B model - Latest generation Chinese and English model, compact size",
+    "tags": ["4B", "Alibaba", "Multilingual", "Chinese", "Latest"],
+    "size": "2.7GB",
+    "pullable": true
+  },
+  {
+    "name": "qwen3:8b",
+    "description": "Qwen3 8B model - Enhanced performance with improved reasoning capabilities",
+    "tags": ["8B", "Alibaba", "Multilingual", "Chinese", "Latest"],
     "size": "4.7GB",
     "pullable": true
   },
   {
-    "name": "Qwen3-8B",
-    "description": "Qwen2.5 3B model - Compact multilingual model",
-    "tags": ["3B", "Alibaba", "Multilingual"],
-    "size": "2.0GB",
+    "name": "qwen3:16b",
+    "description": "Qwen3 16B model - Top-tier performance for complex reasoning and tasks",
+    "tags": ["16B", "Alibaba", "Multilingual", "Chinese", "Latest"],
+    "size": "9.1GB",
+    "pullable": true
+  },
+  {
+    "name": "bge-m3",
+    "description": "BGE-M3 embedding model - Multilingual embedding model for retrieval and similarity",
+    "tags": ["Embedding", "Multilingual", "BGE", "Retrieval"],
+    "size": "2.2GB",
     "pullable": true
   }
 ] 
