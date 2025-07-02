@@ -3,6 +3,7 @@ import { Navbar, NavbarCenter } from '@renderer/components/app/Navbar'
 import Scrollbar from '@renderer/components/Scrollbar'
 import { useProvider } from '@renderer/hooks/useProvider'
 import { useRuntime } from '@renderer/hooks/useRuntime'
+import ollamaDownloadService from '@renderer/services/OllamaDownloadService'
 import { useAppDispatch, useAppSelector } from '@renderer/store'
 import { setOllamaKeepAliveTime } from '@renderer/store/llm'
 import { Model } from '@renderer/types'
@@ -112,15 +113,15 @@ const OllamaPage: FC = () => {
 
   const { provider: ollamaProvider, updateProvider } = ollamaProviderHook
   const { provider: localProvider, addModel: addModelToLocal } = localProviderHook
-  const { settings } = useAppSelector((state) => state.llm)
+  const { settings, downloads = { downloading: [], progress: {} } } = useAppSelector((state) => state.llm)
+
+  // 从全局状态获取下载信息
+  const { downloading: downloadingModels = [], progress: downloadProgress = {} } = downloads
 
   // 安全的状态初始化
   const [installedModels, setInstalledModels] = useState<OllamaModel[]>([])
   const [availableModels, setAvailableModels] = useState<AvailableModel[]>([])
   const [loading, setLoading] = useState(false)
-  const [downloadingModels, setDownloadingModels] = useState<Set<string>>(new Set())
-  const [downloadProgress, setDownloadProgress] = useState<Map<string, DownloadProgress>>(new Map())
-  const [downloadControllers, setDownloadControllers] = useState<Map<string, AbortController>>(new Map())
   const [apiHost, setApiHost] = useState(ollamaProvider?.apiHost || 'http://localhost:11434')
   const [isConnected, setIsConnected] = useState(false)
   const [checkingConnection, setCheckingConnection] = useState(false)
@@ -276,156 +277,18 @@ const OllamaPage: FC = () => {
   }, [resourcesPath])
 
   // 取消下载
-  const cancelDownload = useCallback(
-    (modelName: string) => {
-      const controller = downloadControllers.get(modelName)
-      if (controller) {
-        controller.abort()
-
-        // 清理下载完成记录
-        completedDownloadsRef.current.delete(modelName)
-
-        setDownloadingModels((prev) => {
-          const next = new Set(prev)
-          next.delete(modelName)
-          return next
-        })
-        setDownloadProgress((prev) => {
-          const next = new Map(prev)
-          next.delete(modelName)
-          return next
-        })
-        setDownloadControllers((prev) => {
-          const next = new Map(prev)
-          next.delete(modelName)
-          return next
-        })
-        window.message.info(`已取消下载模型 ${modelName}`)
-      }
-    },
-    [downloadControllers]
-  )
+  const cancelDownload = useCallback((modelName: string) => {
+    ollamaDownloadService.cancelDownload(modelName)
+  }, [])
 
   // 下载模型
   const downloadModel = useCallback(
     async (modelName: string) => {
-      // 创建新的 AbortController
-      const controller = new AbortController()
-
-      // 清理该模型的完成记录，允许重新下载
-      completedDownloadsRef.current.delete(modelName)
-
-      setDownloadingModels((prev) => new Set(prev).add(modelName))
-      setDownloadProgress((prev) => new Map(prev).set(modelName, { status: 'starting' }))
-      setDownloadControllers((prev) => new Map(prev).set(modelName, controller))
-
-      try {
-        const response = await fetch(`${apiHost}/api/pull`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: modelName }),
-          signal: controller.signal
-        })
-
-        if (!response.ok) {
-          throw new Error('Download failed')
-        }
-
-        const reader = response.body?.getReader()
-        if (!reader) {
-          throw new Error('Response body is not readable')
-        }
-
-        const decoder = new TextDecoder()
-        let buffer = ''
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
-
-            // 检查是否被取消
-            if (controller.signal.aborted) {
-              break
-            }
-
-            buffer += decoder.decode(value, { stream: true })
-            const lines = buffer.split('\n')
-            buffer = lines.pop() || ''
-
-            for (const line of lines) {
-              if (line.trim()) {
-                try {
-                  const data = JSON.parse(line)
-                  setDownloadProgress((prev) => new Map(prev).set(modelName, data))
-
-                  if (data.status === 'success') {
-                    // 检查是否已经处理过这个模型的下载完成
-                    if (completedDownloadsRef.current.has(modelName)) {
-                      return // 已经处理过，避免重复提示
-                    }
-
-                    // 标记为已完成
-                    completedDownloadsRef.current.add(modelName)
-
-                    window.message.success(`模型 ${modelName} 下载完成，已自动添加到本地模型库`)
-
-                    // 立即添加到同步记录，避免重复处理
-                    syncedModelsRef.current.add(modelName)
-
-                    // 延迟刷新，确保下载完全结束
-                    setTimeout(() => {
-                      fetchInstalledModels()
-                    }, 500)
-
-                    setDownloadingModels((prev) => {
-                      const next = new Set(prev)
-                      next.delete(modelName)
-                      return next
-                    })
-                    setDownloadProgress((prev) => {
-                      const next = new Map(prev)
-                      next.delete(modelName)
-                      return next
-                    })
-                    setDownloadControllers((prev) => {
-                      const next = new Map(prev)
-                      next.delete(modelName)
-                      return next
-                    })
-                  }
-                } catch (parseError) {
-                  console.error('Failed to parse response line:', line, parseError)
-                }
-              }
-            }
-          }
-        } finally {
-          reader.releaseLock()
-        }
-      } catch (error: any) {
-        if (error.name === 'AbortError') {
-          // 下载被取消，不显示错误消息
-          return
-        }
-        console.error('Failed to download model:', error)
-        window.message.error(`下载模型失败: ${error.message}`)
-        setDownloadingModels((prev) => {
-          const next = new Set(prev)
-          next.delete(modelName)
-          return next
-        })
-        setDownloadProgress((prev) => {
-          const next = new Map(prev)
-          next.delete(modelName)
-          return next
-        })
-        setDownloadControllers((prev) => {
-          const next = new Map(prev)
-          next.delete(modelName)
-          return next
-        })
-      }
+      await ollamaDownloadService.downloadModel(modelName, apiHost)
+      // 下载完成后刷新已安装模型列表
+      setTimeout(() => {
+        fetchInstalledModels()
+      }, 500)
     },
     [apiHost, fetchInstalledModels]
   )
@@ -777,8 +640,8 @@ const OllamaPage: FC = () => {
               ) : (
                 <Row gutter={[16, 16]}>
                   {uninstalledModels.map((model) => {
-                    const isDownloading = downloadingModels.has(model.name)
-                    const progress = downloadProgress.get(model.name)
+                    const isDownloading = downloadingModels.includes(model.name)
+                    const progress = downloadProgress[model.name]
 
                     return (
                       <Col span={12} key={model.name}>

@@ -16,9 +16,9 @@ import type { MenuProps } from 'antd'
 import { Avatar, Dropdown, Tooltip } from 'antd'
 import {
   CircleHelp,
+  FileBox,
   FileSearch,
   Folder,
-  HardDrive,
   Languages,
   LayoutGrid,
   MessageSquare,
@@ -157,7 +157,7 @@ const MainMenus: FC = () => {
     minapp: <LayoutGrid size={18} className="icon" />,
     knowledge: <FileSearch size={18} className="icon" />,
     files: <Folder size={17} className="icon" />,
-    ollama: <HardDrive size={18} className="icon" />
+    ollama: <FileBox size={18} className="icon" />
   }
 
   const pathMap = {
