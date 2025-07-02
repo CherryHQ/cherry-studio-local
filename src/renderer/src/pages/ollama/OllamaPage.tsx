@@ -26,7 +26,7 @@ import {
   Typography
 } from 'antd'
 import { isEmpty } from 'lodash'
-import { CheckCircle, Download, RefreshCw, Server, Settings, Trash2, X } from 'lucide-react'
+import { CheckCircle, Download, RefreshCw, Settings, Trash2, X } from 'lucide-react'
 import { Component, ErrorInfo, FC, useCallback, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -418,8 +418,7 @@ const OllamaPage: FC = () => {
         <Navbar>
           <NavbarCenter style={{ borderRight: 'none' }}>
             <Flex align="center" gap={12}>
-              <Server size={20} />
-              本地模型管理
+              <Text strong>本地模型管理</Text>
             </Flex>
           </NavbarCenter>
         </Navbar>
@@ -444,15 +443,7 @@ const OllamaPage: FC = () => {
       <Navbar>
         <NavbarCenter style={{ borderRight: 'none' }}>
           <Flex align="center" gap={12}>
-            <Server size={20} />
-            本地模型管理
-            <Button
-              type="text"
-              size="small"
-              icon={<Settings size={14} />}
-              onClick={handleConfigIconClick}
-              style={{ opacity: showConfig ? 1 : 0.6 }}
-            />
+            <Text strong>本地模型管理</Text>
           </Flex>
         </NavbarCenter>
       </Navbar>

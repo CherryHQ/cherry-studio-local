@@ -413,31 +413,31 @@ export const SYSTEM_MODELS: Record<string, Model[]> = {
   defaultModel: [
     {
       // 默认助手模型
-      id: 'qwen2.5:3b',
-      name: 'qwen2.5:3b',
+      id: 'qwen3:4b',
+      name: 'qwen3:4b',
       provider: 'local',
-      group: 'qwen2'
+      group: 'qwen3'
     },
     {
       // 默认话题命名模型
-      id: 'qwen2.5:3b',
-      name: 'qwen2.5:3b',
+      id: 'qwen3:4b',
+      name: 'qwen3:4b',
       provider: 'local',
-      group: 'qwen2'
+      group: 'qwen3'
     },
     {
       // 默认翻译模型
-      id: 'qwen2.5:3b',
-      name: 'qwen2.5:3b',
+      id: 'qwen3:4b',
+      name: 'qwen3:4b',
       provider: 'local',
-      group: 'qwen2'
+      group: 'qwen3'
     },
     {
       // 默认快捷助手模型
-      id: 'qwen2.5:3b',
-      name: 'qwen2.5:3b',
+      id: 'qwen3:4b',
+      name: 'qwen3:4b',
       provider: 'local',
-      group: 'qwen2'
+      group: 'qwen3'
     }
   ],
   '302ai': [
