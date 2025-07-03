@@ -26,5 +26,19 @@
     "tags": ["Embedding", "Multilingual", "BGE", "Retrieval"],
     "size": "2.2GB",
     "pullable": true
+  },
+  {
+    "name": "gemma3n:e2b",
+    "description": "Gemma 3n E2B model - Efficient 2B parameter model designed for everyday devices with multimodal capabilities",
+    "tags": ["2B", "Google", "Efficient", "Multimodal", "Lightweight"],
+    "size": "1.6GB",
+    "pullable": true
+  },
+  {
+    "name": "qwen2.5vl:7b",
+    "description": "Qwen2.5-VL 7B model - Flagship vision-language model with advanced multimodal capabilities, document parsing, and video understanding",
+    "tags": ["7B", "Alibaba", "Vision-Language", "Multimodal", "Document-Parsing", "Video"],
+    "size": "6.0GB",
+    "pullable": true
   }
 ] 
