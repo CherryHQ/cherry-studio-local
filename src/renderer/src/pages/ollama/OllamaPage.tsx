@@ -222,26 +222,41 @@ const OllamaPage: FC = () => {
               }
 
               if (localProvider?.models && addModelToLocal) {
-                const exists = localProvider.models.some((m) => m?.id === modelId)
-                if (!exists) {
-                  const newModel: Model = {
-                    id: modelId,
-                    name: model.name,
-                    provider: 'local',
-                    group: getDefaultGroupName(modelId, 'local'),
-                    description: `Ollama 本地模型${model.details?.parameter_size ? ` - ${model.details.parameter_size}` : ''}`,
-                    owned_by: 'ollama'
-                  }
+                const existingModel = localProvider.models.find((m) => m?.id === modelId)
+                const newModel: Model = {
+                  id: modelId,
+                  name: model.name,
+                  provider: 'local',
+                  group: getDefaultGroupName(modelId, 'local'),
+                  description: `Ollama 本地模型${model.details?.parameter_size ? ` - ${model.details.parameter_size}` : ''}`,
+                  owned_by: 'ollama'
+                }
 
-                  if (!isEmpty(newModel.name)) {
+                if (!isEmpty(newModel.name)) {
+                  if (!existingModel) {
+                    // 模型不存在，添加新模型
                     addModelToLocal(newModel)
                     syncedModelsRef.current.add(modelId)
                     console.log(`✅ 已将 Ollama 模型 "${newModel.name}" 自动添加到本地模型库`)
+                  } else {
+                    // 模型已存在，检查是否需要更新
+                    const needsUpdate =
+                      existingModel.description !== newModel.description ||
+                      existingModel.name !== newModel.name ||
+                      existingModel.owned_by !== newModel.owned_by
+
+                    if (needsUpdate) {
+                      // 以已下载的模型为准，更新本地模型
+                      if (localProviderHook.removeModel) {
+                        localProviderHook.removeModel(existingModel)
+                        addModelToLocal(newModel)
+                        console.log(`🔄 已更新 Ollama 模型 "${newModel.name}" 到本地模型库（以已下载的为准）`)
+                      }
+                    } else {
+                      console.log(`📝 模型 "${modelId}" 已存在于本地模型库且信息一致，无需更新`)
+                    }
+                    syncedModelsRef.current.add(modelId)
                   }
-                } else {
-                  // 模型已存在于 local provider，只需要记录到同步列表
-                  syncedModelsRef.current.add(modelId)
-                  console.log(`📝 模型 "${modelId}" 已存在于本地模型库，已记录同步状态`)
                 }
               }
             } catch (error) {
