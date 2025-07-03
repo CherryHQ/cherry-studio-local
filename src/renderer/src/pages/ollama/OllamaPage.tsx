@@ -307,6 +307,16 @@ const OllamaPage: FC = () => {
         if (response.ok) {
           window.message.success(`模型 ${modelName} 删除成功`)
           fetchInstalledModels()
+
+          // 从 local provider 中移除对应的模型
+          if (localProvider?.models && localProviderHook.removeModel) {
+            const modelToRemove = localProvider.models.find((m) => m.id === modelName)
+            if (modelToRemove) {
+              localProviderHook.removeModel(modelToRemove)
+              console.log(`🗑️ 已将模型 "${modelName}" 从 local provider 中移除`)
+            }
+          }
+
           // 同时从同步记录中移除模型
           syncedModelsRef.current.delete(modelName)
           // 清理下载完成记录
@@ -322,7 +332,7 @@ const OllamaPage: FC = () => {
         setLoading(false)
       }
     },
-    [apiHost, fetchInstalledModels]
+    [apiHost, fetchInstalledModels, localProvider, localProviderHook]
   )
 
   // 更新 API Host
