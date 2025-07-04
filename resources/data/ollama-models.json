@@ -9,13 +9,22 @@
     "modelscope": "modelscope.cn/Qwen/Qwen3-4B-GGUF"
   },
   {
-    "name": "modelscope.cn/Qwen/Qwen3-8B-GGUF",
-    "description": "Qwen3 8B Instruct model - Enhanced performance with improved reasoning and chat capabilities",
-    "tags": ["8B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
-    "size": "4.7GB",
+    "name": "modelscope.cn/unsloth/DeepSeek-R1-0528-GGUF",
+    "description": "DeepSeek R1 0528 GGUF model - Advanced reasoning model with enhanced chain-of-thought capabilities",
+    "tags": ["8B", "DeepSeek", "Reasoning", "GGUF", "Quantized", "OpenSource"],
+    "size": "4.8GB",
     "pullable": true,
     "source": "modelscope",
-    "modelscope": "modelscope.cn/Qwen/Qwen3-8B-Instruct-GGUF"
+    "modelscope": "modelscope.cn/unsloth/DeepSeek-R1-0528-GGUF"
+  },
+  {
+    "name": "modelscope.cn/prithivMLmods/Llama-3.2-3B-GGUF",
+    "description": "Llama 3.2 3B GGUF model - Compact and efficient chat model with good multilingual capabilities",
+    "tags": ["3B", "Meta", "Llama", "GGUF", "Multilingual", "Chat", "Efficient"],
+    "size": "2.0GB",
+    "pullable": true,
+    "source": "modelscope",
+    "modelscope": "modelscope.cn/prithivMLmods/Llama-3.2-3B-GGUF"
   },
   {
     "name": "modelscope.cn/Qwen/Qwen2.5-3B-GGUF",
@@ -35,4 +44,4 @@
     "source": "modelscope",
     "modelscope": "modelscope.cn/AI-ModelScope/bge-m3"
   }
-] 
+]  
