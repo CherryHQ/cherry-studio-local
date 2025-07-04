@@ -1,44 +1,38 @@
 [
   {
-    "name": "qwen3:4b",
-    "description": "Qwen3 4B model - Latest generation Chinese and English model, compact size",
-    "tags": ["4B", "Alibaba", "Multilingual", "Chinese", "Latest"],
+    "name": "modelscope.cn/Qwen/Qwen3-4B-Instruct-GGUF",
+    "description": "Qwen3 4B Instruct model - Latest generation Chinese and English chat model, compact size",
+    "tags": ["4B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
     "size": "2.7GB",
-    "pullable": true
+    "pullable": true,
+    "source": "modelscope",
+    "modelscope": "modelscope.cn/Qwen/Qwen3-4B-Instruct-GGUF"
   },
   {
-    "name": "qwen3:8b",
-    "description": "Qwen3 8B model - Enhanced performance with improved reasoning capabilities",
-    "tags": ["8B", "Alibaba", "Multilingual", "Chinese", "Latest"],
+    "name": "modelscope.cn/Qwen/Qwen3-8B-Instruct-GGUF",
+    "description": "Qwen3 8B Instruct model - Enhanced performance with improved reasoning and chat capabilities",
+    "tags": ["8B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
     "size": "4.7GB",
-    "pullable": true
+    "pullable": true,
+    "source": "modelscope",
+    "modelscope": "modelscope.cn/Qwen/Qwen3-8B-Instruct-GGUF"
   },
   {
-    "name": "qwen3:16b",
-    "description": "Qwen3 16B model - Top-tier performance for complex reasoning and tasks",
-    "tags": ["16B", "Alibaba", "Multilingual", "Chinese", "Latest"],
-    "size": "9.1GB",
-    "pullable": true
+    "name": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF",
+    "description": "Qwen2.5 3B Instruct model - Efficient chat model with good Chinese and English capabilities",
+    "tags": ["3B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
+    "size": "2.1GB",
+    "pullable": true,
+    "source": "modelscope",
+    "modelscope": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF"
   },
   {
-    "name": "bge-m3",
+    "name": "modelscope.cn/Embedding-GGUF/bge-m3-GGUF",
     "description": "BGE-M3 embedding model - Multilingual embedding model for retrieval and similarity",
     "tags": ["Embedding", "Multilingual", "BGE", "Retrieval"],
     "size": "2.2GB",
-    "pullable": true
-  },
-  {
-    "name": "gemma3n:e2b",
-    "description": "Gemma 3n E2B model - Efficient 2B parameter model designed for everyday devices with multimodal capabilities",
-    "tags": ["2B", "Google", "Efficient", "Multimodal", "Lightweight"],
-    "size": "1.6GB",
-    "pullable": true
-  },
-  {
-    "name": "qwen2.5vl:7b",
-    "description": "Qwen2.5-VL 7B model - Flagship vision-language model with advanced multimodal capabilities, document parsing, and video understanding",
-    "tags": ["7B", "Alibaba", "Vision-Language", "Multimodal", "Document-Parsing", "Video"],
-    "size": "6.0GB",
-    "pullable": true
+    "pullable": true,
+    "source": "modelscope",
+    "modelscope": "modelscope.cn/AI-ModelScope/bge-m3"
   }
 ] 
