@@ -1,15 +1,15 @@
 [
   {
-    "name": "modelscope.cn/Qwen/Qwen3-4B-Instruct-GGUF",
+    "name": "modelscope.cn/Qwen/Qwen3-4B-GGUF",
     "description": "Qwen3 4B Instruct model - Latest generation Chinese and English chat model, compact size",
     "tags": ["4B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
     "size": "2.7GB",
     "pullable": true,
     "source": "modelscope",
-    "modelscope": "modelscope.cn/Qwen/Qwen3-4B-Instruct-GGUF"
+    "modelscope": "modelscope.cn/Qwen/Qwen3-4B-GGUF"
   },
   {
-    "name": "modelscope.cn/Qwen/Qwen3-8B-Instruct-GGUF",
+    "name": "modelscope.cn/Qwen/Qwen3-8B-GGUF",
     "description": "Qwen3 8B Instruct model - Enhanced performance with improved reasoning and chat capabilities",
     "tags": ["8B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
     "size": "4.7GB",
@@ -18,13 +18,13 @@
     "modelscope": "modelscope.cn/Qwen/Qwen3-8B-Instruct-GGUF"
   },
   {
-    "name": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF",
+    "name": "modelscope.cn/Qwen/Qwen2.5-3B-GGUF",
     "description": "Qwen2.5 3B Instruct model - Efficient chat model with good Chinese and English capabilities",
     "tags": ["3B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
     "size": "2.1GB",
     "pullable": true,
     "source": "modelscope",
-    "modelscope": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF"
+    "modelscope": "modelscope.cn/Qwen/Qwen2.5-3B-GGUF"
   },
   {
     "name": "modelscope.cn/Embedding-GGUF/bge-m3-GGUF",
