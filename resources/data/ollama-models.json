@@ -27,13 +27,13 @@
     "modelscope": "modelscope.cn/prithivMLmods/Llama-3.2-3B-GGUF"
   },
   {
-    "name": "modelscope.cn/Qwen/Qwen2.5-3B-GGUF",
+    "name": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF",
     "description": "Qwen2.5 3B Instruct model - Efficient chat model with good Chinese and English capabilities",
     "tags": ["3B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
     "size": "2.1GB",
     "pullable": true,
     "source": "modelscope",
-    "modelscope": "modelscope.cn/Qwen/Qwen2.5-3B-GGUF"
+    "modelscope": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF"
   },
   {
     "name": "modelscope.cn/Embedding-GGUF/bge-m3-GGUF",
