@@ -32,6 +32,30 @@ import styled from 'styled-components'
 
 const { Text, Paragraph } = Typography
 
+// 添加工具函数来提取模型显示名称
+const getModelDisplayName = (fullName: string): string => {
+  // 取最后一个 '/' 后的部分
+  const lastSlashIndex = fullName.lastIndexOf('/')
+  let modelName = lastSlashIndex !== -1 ? fullName.substring(lastSlashIndex + 1) : fullName
+
+  // 去掉常见的后缀
+  const suffixesToRemove = ['-GGUF', '-Instruct-GGUF', '-Chat-GGUF', '-Code-GGUF']
+
+  for (const suffix of suffixesToRemove) {
+    if (modelName.endsWith(suffix)) {
+      modelName = modelName.substring(0, modelName.length - suffix.length)
+      break
+    }
+  }
+
+  // 如果还有 -Instruct 后缀，也去掉
+  if (modelName.endsWith('-Instruct')) {
+    modelName = modelName.substring(0, modelName.length - '-Instruct'.length)
+  }
+
+  return modelName
+}
+
 // 错误边界组件
 class ErrorBoundary extends Component<
   { children: React.ReactNode; fallback?: React.ReactNode },
@@ -225,7 +249,7 @@ const OllamaPage: FC = () => {
                 const existingModel = localProvider.models.find((m) => m?.id === modelId)
                 const newModel: Model = {
                   id: modelId,
-                  name: model.name,
+                  name: getModelDisplayName(model.name),
                   provider: 'local',
                   group: getDefaultGroupName(modelId, 'local'),
                   description: `Ollama 本地模型${model.details?.parameter_size ? ` - ${model.details.parameter_size}` : ''}`,
@@ -578,7 +602,7 @@ const OllamaPage: FC = () => {
                           size="small"
                           title={
                             <Flex align="center" justify="space-between">
-                              <Text strong>{model.name}</Text>
+                              <Text strong>{getModelDisplayName(model.name)}</Text>
                               <Tooltip title="删除模型">
                                 <Button
                                   type="text"
@@ -594,7 +618,7 @@ const OllamaPage: FC = () => {
                                       content: (
                                         <div>
                                           <p style={{ marginBottom: 12 }}>
-                                            您确定要删除模型 <strong>{model.name}</strong> 吗？
+                                            您确定要删除模型 <strong>{getModelDisplayName(model.name)}</strong> 吗？
                                           </p>
                                           <div style={{ fontSize: '13px', color: '#666' }}>
                                             <div>• 模型大小: {modelSize}</div>
@@ -665,7 +689,7 @@ const OllamaPage: FC = () => {
                           size="small"
                           title={
                             <Flex align="center" justify="space-between">
-                              <Text strong>{model.name}</Text>
+                              <Text strong>{getModelDisplayName(model.name)}</Text>
                               <Space>
                                 {model.tags.map((tag) => (
                                   <Tag key={tag}>{tag}</Tag>
