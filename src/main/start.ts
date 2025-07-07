@@ -109,7 +109,7 @@ const runOllama = async (): Promise<ChildProcess | null> => {
   // 设置环境变量
   const env = {
     ...process.env,
-    OLLAMA_MODEL_SOURCE: 'ollama',
+    OLLAMA_MODEL_SOURCE: 'modelscope',
     OLLAMA_NUM_GPU: '999',
     no_proxy: 'localhost,127.0.0.1',
     ZES_ENABLE_SYSMAN: '1',
