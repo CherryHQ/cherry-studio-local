@@ -131,7 +131,6 @@ interface AvailableModel {
   size: string
   pullable: boolean
   source: string
-  modelscope?: string
 }
 
 interface DownloadProgress {
