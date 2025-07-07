@@ -8,9 +8,36 @@ interface DownloadProgress {
   digest?: string
 }
 
+interface AvailableModel {
+  showname: string
+  name: string
+  description: string
+  tags: string[]
+  size: string
+  pullable: boolean
+  source: string
+  modelscope?: string
+}
+
 class OllamaDownloadService {
   private downloadControllers = new Map<string, AbortController>()
   private completedDownloads = new Set<string>()
+  private availableModels: AvailableModel[] = []
+
+  /**
+   * 设置可用模型数据（用于获取 showname）
+   */
+  setAvailableModels(models: AvailableModel[]): void {
+    this.availableModels = models
+  }
+
+  /**
+   * 根据模型名称获取显示名称
+   */
+  private getModelDisplayName(modelName: string): string {
+    const model = this.availableModels.find((m) => m.name === modelName || modelName.startsWith(`${m.name}:`))
+    return model?.showname || modelName
+  }
 
   /**
    * 开始下载模型
@@ -18,7 +45,8 @@ class OllamaDownloadService {
   async downloadModel(modelName: string, apiHost: string): Promise<void> {
     // 如果已经在下载，跳过
     if (this.downloadControllers.has(modelName)) {
-      console.warn(`Model ${modelName} is already downloading`)
+      const displayName = this.getModelDisplayName(modelName)
+      console.warn(`Model ${displayName} is already downloading`)
       return
     }
 
@@ -83,7 +111,9 @@ class OllamaDownloadService {
                   // 标记为已完成
                   this.completedDownloads.add(modelName)
 
-                  window.message.success(`模型 ${modelName} 下载完成，已自动添加到本地模型库`)
+                  // 使用 showname 显示提示信息
+                  const displayName = this.getModelDisplayName(modelName)
+                  window.message.success(`模型 ${displayName} 下载完成，已自动添加到本地模型库`)
 
                   // 完成下载，清理状态
                   this.cleanupDownload(modelName)
@@ -104,7 +134,10 @@ class OllamaDownloadService {
         return
       }
       console.error('Failed to download model:', error)
-      window.message.error(`下载模型失败: ${error.message}`)
+
+      // 使用 showname 显示提示信息
+      const displayName = this.getModelDisplayName(modelName)
+      window.message.error(`下载模型 ${displayName} 失败: ${error.message}`)
 
       // 清理状态
       this.cleanupDownload(modelName)
@@ -120,7 +153,10 @@ class OllamaDownloadService {
       controller.abort()
       this.completedDownloads.delete(modelName)
       this.cleanupDownload(modelName)
-      window.message.info(`已取消下载模型 ${modelName}`)
+
+      // 使用 showname 显示提示信息
+      const displayName = this.getModelDisplayName(modelName)
+      window.message.info(`已取消下载模型 ${displayName}`)
     }
   }
 

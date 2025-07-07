@@ -1,5 +1,6 @@
 [
   {
+    "showname": "Qwen3-4B",
     "name": "modelscope.cn/Qwen/Qwen3-4B-GGUF",
     "description": "Qwen3 4B Instruct model - Latest generation Chinese and English chat model, compact size",
     "tags": ["4B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
@@ -9,24 +10,27 @@
     "modelscope": "modelscope.cn/Qwen/Qwen3-4B-GGUF"
   },
   {
-    "name": "modelscope.cn/unsloth/DeepSeek-R1-0528-GGUF",
-    "description": "DeepSeek R1 0528 GGUF model - Advanced reasoning model with enhanced chain-of-thought capabilities",
-    "tags": ["8B", "DeepSeek", "Reasoning", "GGUF", "Quantized", "OpenSource"],
-    "size": "4.8GB",
+    "showname": "Qwen3-8B",
+    "name": "modelscope.cn/Qwen/Qwen3-8B-GGUF",
+    "description": "Qwen3 8B Instruct model - Powerful Chinese and English chat model with enhanced reasoning",
+    "tags": ["8B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
+    "size": "4.9GB",
     "pullable": true,
     "source": "modelscope",
-    "modelscope": "modelscope.cn/unsloth/DeepSeek-R1-0528-GGUF"
+    "modelscope": "modelscope.cn/Qwen/Qwen3-8B-GGUF"
   },
   {
-    "name": "modelscope.cn/prithivMLmods/Llama-3.2-3B-GGUF",
-    "description": "Llama 3.2 3B GGUF model - Compact and efficient chat model with good multilingual capabilities",
-    "tags": ["3B", "Meta", "Llama", "GGUF", "Multilingual", "Chat", "Efficient"],
-    "size": "2.0GB",
+    "showname": "Qwen3-16B",
+    "name": "modelscope.cn/unsloth/Qwen3-16B-A3B-GGUF",
+    "description": "Qwen3 16B A3B - Large-scale Chinese and English model with advanced reasoning capabilities",
+    "tags": ["16B", "Alibaba", "Unsloth", "Multilingual", "Chinese", "Chat", "Instruct"],
+    "size": "9.2GB",
     "pullable": true,
     "source": "modelscope",
-    "modelscope": "modelscope.cn/prithivMLmods/Llama-3.2-3B-GGUF"
+    "modelscope": "modelscope.cn/unsloth/Qwen3-16B-A3B-GGUF"
   },
   {
+    "showname": "Qwen2.5-3B-Instruct",
     "name": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF",
     "description": "Qwen2.5 3B Instruct model - Efficient chat model with good Chinese and English capabilities",
     "tags": ["3B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
@@ -36,6 +40,7 @@
     "modelscope": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF"
   },
   {
+    "showname": "bge-m3",
     "name": "modelscope.cn/Embedding-GGUF/bge-m3-GGUF",
     "description": "BGE-M3 embedding model - Multilingual embedding model for retrieval and similarity",
     "tags": ["Embedding", "Multilingual", "BGE", "Retrieval"],

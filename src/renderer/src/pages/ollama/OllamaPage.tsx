@@ -27,16 +27,27 @@ import {
 } from 'antd'
 import { isEmpty } from 'lodash'
 import { CheckCircle, Download, RefreshCw, Settings, Trash2, X } from 'lucide-react'
-import { Component, ErrorInfo, FC, useCallback, useEffect, useRef, useState } from 'react'
+import { Component, ErrorInfo, FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 const { Text, Paragraph } = Typography
 
-// 添加工具函数来提取模型显示名称
-const getModelDisplayName = (fullName: string): string => {
-  // 取最后一个 '/' 后的部分
-  const lastSlashIndex = fullName.lastIndexOf('/')
-  let modelName = lastSlashIndex !== -1 ? fullName.substring(lastSlashIndex + 1) : fullName
+// 获取已安装模型的显示名称（优先使用 showname，从 JSON 中查找）
+const getInstalledModelDisplayName = (installedModelName: string, availableModels: AvailableModel[]): string => {
+  // 在可下载模型列表中查找匹配的模型
+  const matchedModel = availableModels.find((availableModel) => {
+    // 精确匹配或前缀匹配（处理标签版本）
+    return installedModelName === availableModel.name || installedModelName.startsWith(`${availableModel.name}:`)
+  })
+
+  // 如果找到匹配的模型，返回 showname，否则使用默认处理
+  if (matchedModel) {
+    return matchedModel.showname
+  }
+
+  // 如果没有匹配的模型，使用默认的处理逻辑
+  const lastSlashIndex = installedModelName.lastIndexOf('/')
+  let modelName = lastSlashIndex !== -1 ? installedModelName.substring(lastSlashIndex + 1) : installedModelName
 
   // 去掉常见的后缀
   const suffixesToRemove = ['-GGUF', '-Instruct-GGUF', '-Chat-GGUF', '-Code-GGUF']
@@ -113,11 +124,14 @@ interface OllamaModel {
 }
 
 interface AvailableModel {
-  name: string
+  showname: string // 显示名称
+  name: string // 实际的模型标识符
   description: string
   tags: string[]
   size: string
   pullable: boolean
+  source: string
+  modelscope?: string
 }
 
 interface DownloadProgress {
@@ -227,75 +241,83 @@ const OllamaPage: FC = () => {
 
       setInstalledModels(models)
 
-      // 分离模型同步逻辑，避免依赖循环
-      if (models.length > 0) {
-        // 使用 setTimeout 确保在下次事件循环中执行，避免阻塞当前渲染
-        setTimeout(() => {
-          models.forEach((model) => {
-            try {
-              // 直接检查和添加，不依赖外部函数
-              const modelId = model.name
-              if (!modelId || isEmpty(modelId)) {
-                console.warn('Invalid Ollama model:', model)
-                return
-              }
-
-              // 检查是否已经在同步记录中
-              if (syncedModelsRef.current.has(modelId)) {
-                return // 已经处理过，跳过
-              }
-
-              if (localProvider?.models && addModelToLocal) {
-                const existingModel = localProvider.models.find((m) => m?.id === modelId)
-                const newModel: Model = {
-                  id: modelId,
-                  name: getModelDisplayName(model.name),
-                  provider: 'local',
-                  group: getDefaultGroupName(modelId, 'local'),
-                  description: `Ollama 本地模型${model.details?.parameter_size ? ` - ${model.details.parameter_size}` : ''}`,
-                  owned_by: 'ollama'
-                }
-
-                if (!isEmpty(newModel.name)) {
-                  if (!existingModel) {
-                    // 模型不存在，添加新模型
-                    addModelToLocal(newModel)
-                    syncedModelsRef.current.add(modelId)
-                    console.log(`✅ 已将 Ollama 模型 "${newModel.name}" 自动添加到本地模型库`)
-                  } else {
-                    // 模型已存在，检查是否需要更新
-                    const needsUpdate =
-                      existingModel.description !== newModel.description ||
-                      existingModel.name !== newModel.name ||
-                      existingModel.owned_by !== newModel.owned_by
-
-                    if (needsUpdate) {
-                      // 以已下载的模型为准，更新本地模型
-                      if (localProviderHook.removeModel) {
-                        localProviderHook.removeModel(existingModel)
-                        addModelToLocal(newModel)
-                        console.log(`🔄 已更新 Ollama 模型 "${newModel.name}" 到本地模型库（以已下载的为准）`)
-                      }
-                    } else {
-                      console.log(`📝 模型 "${modelId}" 已存在于本地模型库且信息一致，无需更新`)
-                    }
-                    syncedModelsRef.current.add(modelId)
-                  }
-                }
-              }
-            } catch (error) {
-              console.error('Error adding model to local provider:', error)
-            }
-          })
-        }, 200) // 增加延迟，确保渲染完成
-      }
+      // 模型同步逻辑已移至单独的函数中处理
     } catch (error) {
       console.error('Failed to fetch installed models:', error)
       setInstalledModels([]) // 确保有一个明确的状态
     } finally {
       setLoading(false)
     }
-  }, [apiHost, isConnected]) // 移除 addOllamaModelToLocal 依赖
+  }, [apiHost, isConnected]) // 移除 availableModels 依赖，避免循环依赖
+
+  // 同步已安装模型到本地模型库（只同步JSON中定义的模型）
+  useEffect(() => {
+    // 只在两个数据源都准备好时才开始同步
+    if (installedModels.length === 0 || availableModels.length === 0) {
+      return
+    }
+
+    console.log('🔄 开始同步已安装模型到本地模型库（只同步JSON中定义的模型）...')
+    console.log('已安装模型数量:', installedModels.length)
+    console.log('JSON中定义的模型数量:', availableModels.length)
+
+    // 遍历已安装的模型
+    installedModels.forEach((installedModel) => {
+      const modelId = installedModel.name
+      if (!modelId || isEmpty(modelId)) {
+        console.warn('⚠️ 无效的 Ollama 模型:', installedModel)
+        return
+      }
+
+      // 检查该模型是否在 JSON 中定义
+      const matchedJsonModel = availableModels.find((jsonModel) => {
+        // 精确匹配或前缀匹配（处理标签版本，如 model:latest）
+        return modelId === jsonModel.name || modelId.startsWith(`${jsonModel.name}:`)
+      })
+
+      if (!matchedJsonModel) {
+        console.log(`⏭️ 跳过未在JSON中定义的模型: ${modelId}`)
+        return // 不在 JSON 中定义的模型，跳过同步
+      }
+
+      // 检查是否已经同步过
+      if (syncedModelsRef.current.has(modelId)) {
+        console.log(`📝 模型 "${modelId}" 已经同步过，跳过`)
+        return
+      }
+
+      // 只同步 JSON 中定义的模型
+      if (localProvider?.models && addModelToLocal) {
+        const existingModel = localProvider.models.find((m) => m?.id === modelId)
+
+        const newModel: Model = {
+          id: modelId,
+          name: matchedJsonModel.showname, // 使用 JSON 中定义的显示名称
+          provider: 'local',
+          group: getDefaultGroupName(modelId, 'local'),
+          description: `Ollama 本地模型${installedModel.details?.parameter_size ? ` - ${installedModel.details.parameter_size}` : ''}`,
+          owned_by: 'ollama'
+        }
+
+        if (!existingModel) {
+          // 模型不存在，添加新模型
+          addModelToLocal(newModel)
+          syncedModelsRef.current.add(modelId)
+          console.log(`✅ 已将 JSON 中定义的 Ollama 模型 "${newModel}" 添加到本地模型库`)
+        } else {
+          // 模型已存在，检查是否需要更新显示名称
+          if (existingModel.name !== newModel.name) {
+            localProviderHook.removeModel?.(existingModel)
+            addModelToLocal(newModel)
+            console.log(`🔄 已更新 Ollama 模型 "${newModel.name}" 的显示名称`)
+          }
+          syncedModelsRef.current.add(modelId)
+        }
+      }
+    })
+
+    console.log('✅ 模型同步完成')
+  }, [installedModels, availableModels, localProvider, addModelToLocal, localProviderHook])
 
   // 获取可下载的模型列表
   const fetchAvailableModels = useCallback(async () => {
@@ -308,6 +330,9 @@ const OllamaPage: FC = () => {
       const modelsData = await window.api.fs.read(`${resourcesPath}/data/ollama-models.json`, 'utf-8')
       const models: AvailableModel[] = JSON.parse(modelsData)
       setAvailableModels(models)
+
+      // 将可用模型数据传递给下载服务，用于显示 showname
+      ollamaDownloadService.setAvailableModels(models)
     } catch (error) {
       console.error('Failed to load local models from JSON:', error)
       // 如果读取文件失败，使用默认的空数组
@@ -344,7 +369,9 @@ const OllamaPage: FC = () => {
         })
 
         if (response.ok) {
-          window.message.success(`模型 ${modelName} 删除成功`)
+          // 使用 showname 显示删除成功提示
+          const displayName = getInstalledModelDisplayName(modelName, availableModels)
+          window.message.success(`模型 ${displayName} 删除成功`)
           fetchInstalledModels()
 
           // 从 local provider 中移除对应的模型
@@ -366,7 +393,9 @@ const OllamaPage: FC = () => {
         }
       } catch (error) {
         console.error('Failed to delete model:', error)
-        window.message.error(`删除模型失败: ${error}`)
+        // 使用 showname 显示删除失败提示
+        const displayName = getInstalledModelDisplayName(modelName, availableModels)
+        window.message.error(`删除模型 ${displayName} 失败: ${error}`)
       } finally {
         setLoading(false)
       }
@@ -456,6 +485,32 @@ const OllamaPage: FC = () => {
     },
     [installedModels]
   )
+
+  // 过滤出在JSON中定义的已安装模型
+  const jsonDefinedInstalledModels = useMemo(() => {
+    const filtered = installedModels.filter((installedModel) => {
+      // 检查已安装模型是否在JSON中定义
+      return availableModels.some((jsonModel) => {
+        // 精确匹配或前缀匹配（处理标签版本）
+        return installedModel.name === jsonModel.name || installedModel.name.startsWith(`${jsonModel.name}:`)
+      })
+    })
+
+    // 输出过滤统计信息
+    const totalInstalled = installedModels.length
+    const jsonDefined = filtered.length
+    const filtered_out = totalInstalled - jsonDefined
+
+    if (totalInstalled > 0) {
+      console.log(`📊 已安装模型过滤统计: 总计${totalInstalled}个，JSON中定义${jsonDefined}个，过滤掉${filtered_out}个`)
+      if (filtered_out > 0) {
+        const filteredModels = installedModels.filter((m) => !filtered.includes(m))
+        console.log(`⏭️ 被过滤掉的模型:`, filteredModels.map((m) => m.name).join(', '))
+      }
+    }
+
+    return filtered
+  }, [installedModels, availableModels])
 
   // 过滤出未安装的可下载模型
   const uninstalledModels = availableModels.filter((model) => !isModelInstalled(model.name))
@@ -579,7 +634,7 @@ const OllamaPage: FC = () => {
                 <Flex align="center" justify="space-between">
                   <Flex align="center" gap={8}>
                     <CheckCircle size={18} />
-                    已安装模型 ({installedModels.length})
+                    已安装模型 ({jsonDefinedInstalledModels.length})
                   </Flex>
                   <Button icon={<RefreshCw size={14} />} onClick={fetchInstalledModels} loading={loading} size="small">
                     刷新
@@ -591,18 +646,18 @@ const OllamaPage: FC = () => {
                 <Flex justify="center" style={{ padding: '40px 0' }}>
                   <Spin size="large" />
                 </Flex>
-              ) : installedModels.length === 0 ? (
-                <Empty description="暂无已安装的模型" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              ) : jsonDefinedInstalledModels.length === 0 ? (
+                <Empty description={'暂无已安装的模型'} image={Empty.PRESENTED_IMAGE_SIMPLE} />
               ) : (
                 <Row gutter={[16, 16]}>
-                  {installedModels.map((model) => (
+                  {jsonDefinedInstalledModels.map((model) => (
                     <Col span={12} key={model.name}>
                       <ModelCard>
                         <Card
                           size="small"
                           title={
                             <Flex align="center" justify="space-between">
-                              <Text strong>{getModelDisplayName(model.name)}</Text>
+                              <Text strong>{getInstalledModelDisplayName(model.name, availableModels)}</Text>
                               <Tooltip title="删除模型">
                                 <Button
                                   type="text"
@@ -618,7 +673,9 @@ const OllamaPage: FC = () => {
                                       content: (
                                         <div>
                                           <p style={{ marginBottom: 12 }}>
-                                            您确定要删除模型 <strong>{getModelDisplayName(model.name)}</strong> 吗？
+                                            您确定要删除模型{' '}
+                                            <strong>{getInstalledModelDisplayName(model.name, availableModels)}</strong>{' '}
+                                            吗？
                                           </p>
                                           <div style={{ fontSize: '13px', color: '#666' }}>
                                             <div>• 模型大小: {modelSize}</div>
@@ -689,7 +746,7 @@ const OllamaPage: FC = () => {
                           size="small"
                           title={
                             <Flex align="center" justify="space-between">
-                              <Text strong>{getModelDisplayName(model.name)}</Text>
+                              <Text strong>{model.showname}</Text>
                               <Space>
                                 {model.tags.map((tag) => (
                                   <Tag key={tag}>{tag}</Tag>
