@@ -485,7 +485,6 @@ export interface TranslateHistory {
 export type SidebarIcon =
   | 'assistants'
   | 'agents'
-  | 'paintings'
   | 'translate'
   | 'minapp'
   | 'knowledge'
