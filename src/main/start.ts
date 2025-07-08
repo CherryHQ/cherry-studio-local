@@ -109,7 +109,6 @@ const runOllama = async (): Promise<ChildProcess | null> => {
   // 设置环境变量
   const env = {
     ...process.env,
-    OLLAMA_MODEL_SOURCE: 'modelscope',
     OLLAMA_NUM_GPU: '999',
     no_proxy: 'localhost,127.0.0.1',
     ZES_ENABLE_SYSMAN: '1',
@@ -117,7 +116,6 @@ const runOllama = async (): Promise<ChildProcess | null> => {
     OLLAMA_KEEP_ALIVE: '10m',
     OLLAMA_HOST: `127.0.0.1:${port}`
   }
-  console.log(env, '?????????????????????a')
   // 运行 Ollama
   const ollamaProcess = spawn(ollamaExecutable, ['serve'], {
     stdio: ['pipe', 'pipe', 'pipe'],
