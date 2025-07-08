@@ -114,6 +114,7 @@ const runOllama = async (): Promise<ChildProcess | null> => {
     ZES_ENABLE_SYSMAN: '1',
     SYCL_CACHE_PERSISTENT: '1',
     OLLAMA_KEEP_ALIVE: '10m',
+    OLLAMA_NUM_PARALLE: '2',
     OLLAMA_HOST: `127.0.0.1:${port}`
   }
   // 运行 Ollama
