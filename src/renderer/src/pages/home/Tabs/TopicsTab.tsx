@@ -434,6 +434,13 @@ const Topics: FC<Props> = ({ assistant: _assistant, activeTopic, setActiveTopic 
     onDeleteTopic
   ])
 
+  const processTopicName = (name: string): string => {
+    // Remove <think> tags and their content
+    const withoutThinkTags = name.replace(/<think>[\s\S]*?<\/think>/g, '')
+    // Clean up multiple newlines and trim
+    return withoutThinkTags.replace(/\n+/g, ' ').trim()
+  }
+
   // Sort topics based on pinned status if pinTopicsToTop is enabled
   const sortedTopics = useMemo(() => {
     if (pinTopicsToTop) {
@@ -452,7 +459,7 @@ const Topics: FC<Props> = ({ assistant: _assistant, activeTopic, setActiveTopic 
         <DragableList list={sortedTopics} onUpdate={updateTopics}>
           {(topic) => {
             const isActive = topic.id === activeTopic?.id
-            const topicName = topic.name.replace('`', '')
+            const topicName = processTopicName(topic.name).replace('`', '')
             const topicPrompt = topic.prompt
             const fullTopicPrompt = t('common.prompt') + ': ' + topicPrompt
 
