@@ -221,7 +221,7 @@ export const initialState: SettingsState = {
   pasteLongTextAsFile: false,
   pasteLongTextThreshold: 1500,
   clickAssistantToShowTopic: true,
-  autoCheckUpdate: true,
+  autoCheckUpdate: false,
   earlyAccess: false,
   upgradeChannel: UpgradeChannel.LATEST,
   renderInputMessageAsMarkdown: false,

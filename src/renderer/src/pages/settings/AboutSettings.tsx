@@ -11,8 +11,7 @@ import { setUpdateState } from '@renderer/store/runtime'
 import { ThemeMode } from '@renderer/types'
 import { compareVersions, runAsyncFunction } from '@renderer/utils'
 import { UpgradeChannel } from '@shared/config/constant'
-import { Avatar, Button, Progress, Radio, Row, Switch, Tag, Tooltip } from 'antd'
-import { debounce } from 'lodash'
+import { Avatar, Button, Progress, Radio, Row, Tag, Tooltip } from 'antd'
 import { Bug, FileCheck, Github, Globe, Mail, Rss } from 'lucide-react'
 import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,37 +25,36 @@ const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
   const [isPortable, setIsPortable] = useState(false)
   const { t } = useTranslation()
-  const { autoCheckUpdate, setAutoCheckUpdate, earlyAccess, setEarlyAccess, upgradeChannel, setUpgradeChannel } =
-    useSettings()
+  const { earlyAccess, setEarlyAccess, upgradeChannel, setUpgradeChannel } = useSettings()
   const { theme } = useTheme()
   const dispatch = useAppDispatch()
   const { update } = useRuntime()
   const { openMinapp } = useMinappPopup()
 
-  const onCheckUpdate = debounce(
-    async () => {
-      if (update.checking || update.downloading) {
-        return
-      }
+  // const onCheckUpdate = debounce(
+  //   async () => {
+  //     if (update.checking || update.downloading) {
+  //       return
+  //     }
 
-      if (update.downloaded) {
-        window.api.showUpdateDialog()
-        return
-      }
+  //     if (update.downloaded) {
+  //       window.api.showUpdateDialog()
+  //       return
+  //     }
 
-      dispatch(setUpdateState({ checking: true }))
+  //     dispatch(setUpdateState({ checking: true }))
 
-      try {
-        await window.api.checkForUpdate()
-      } catch (error) {
-        window.message.error(t('settings.about.updateError'))
-      }
+  //     try {
+  //       await window.api.checkForUpdate()
+  //     } catch (error) {
+  //       window.message.error(t('settings.about.updateError'))
+  //     }
 
-      dispatch(setUpdateState({ checking: false }))
-    },
-    2000,
-    { leading: true, trailing: false }
-  )
+  //     dispatch(setUpdateState({ checking: false }))
+  //   },
+  //   2000,
+  //   { leading: true, trailing: false }
+  // )
 
   const onOpenWebsite = (url: string) => {
     window.api.openWebsite(url)
@@ -133,20 +131,20 @@ const AboutSettings: FC = () => {
     ]
   }
 
-  const handlerSetEarlyAccess = (value: boolean) => {
-    setEarlyAccess(value)
-    dispatch(
-      setUpdateState({
-        available: false,
-        info: null,
-        downloaded: false,
-        checking: false,
-        downloading: false,
-        downloadProgress: 0
-      })
-    )
-    if (value === false) setUpgradeChannel(UpgradeChannel.LATEST)
-  }
+  // const handlerSetEarlyAccess = (value: boolean) => {
+  //   setEarlyAccess(value)
+  //   dispatch(
+  //     setUpdateState({
+  //       available: false,
+  //       info: null,
+  //       downloaded: false,
+  //       checking: false,
+  //       downloading: false,
+  //       downloadProgress: 0
+  //     })
+  //   )
+  //   if (value === false) setUpgradeChannel(UpgradeChannel.LATEST)
+  // }
 
   useEffect(() => {
     runAsyncFunction(async () => {
@@ -154,8 +152,8 @@ const AboutSettings: FC = () => {
       setVersion(appInfo.version)
       setIsPortable(appInfo.isPortable)
     })
-    setAutoCheckUpdate(autoCheckUpdate)
-  }, [autoCheckUpdate, setAutoCheckUpdate, setEarlyAccess])
+    // setAutoCheckUpdate(autoCheckUpdate)
+  }, [setEarlyAccess])
 
   return (
     <SettingContainer theme={theme}>
@@ -195,7 +193,7 @@ const AboutSettings: FC = () => {
               </Tag>
             </VersionWrapper>
           </Row>
-          {!isPortable && (
+          {/* {!isPortable && (
             <CheckUpdateButton
               onClick={onCheckUpdate}
               loading={update.checking}
@@ -206,11 +204,11 @@ const AboutSettings: FC = () => {
                   ? t('settings.about.checkUpdate.available')
                   : t('settings.about.checkUpdate')}
             </CheckUpdateButton>
-          )}
+          )} */}
         </AboutHeader>
         {!isPortable && (
           <>
-            <SettingDivider />
+            {/* <SettingDivider />
             <SettingRow>
               <SettingRowTitle>{t('settings.general.auto_check_update.title')}</SettingRowTitle>
               <Switch value={autoCheckUpdate} onChange={(v) => setAutoCheckUpdate(v)} />
@@ -221,7 +219,7 @@ const AboutSettings: FC = () => {
               <Tooltip title={t('settings.general.early_access.tooltip')} trigger={['hover', 'focus']}>
                 <Switch value={earlyAccess} onChange={(v) => handlerSetEarlyAccess(v)} />
               </Tooltip>
-            </SettingRow>
+            </SettingRow> */}
             {earlyAccess && getAvailableTestChannels().length > 0 && (
               <>
                 <SettingDivider />
@@ -347,7 +345,7 @@ const Description = styled.div`
   text-align: center;
 `
 
-const CheckUpdateButton = styled(Button)``
+// const CheckUpdateButton = styled(Button)``
 
 const AvatarWrapper = styled.div`
   position: relative;
