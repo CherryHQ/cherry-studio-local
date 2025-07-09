@@ -174,7 +174,7 @@ const InputbarTools = ({
         label: t('agents.edit.model.select.title'),
         description: '',
         icon: <AtSign />,
-        isMenu: true,
+        isMenu: false,
         action: () => {
           mentionModelsButtonRef.current?.openQuickPanel()
         }
@@ -368,7 +368,8 @@ const InputbarTools = ({
             onMentionModel={onMentionModel}
             ToolbarButton={ToolbarButton}
           />
-        )
+        ),
+        condition: false
       },
       {
         key: 'quick_phrases',
