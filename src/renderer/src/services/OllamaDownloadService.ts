@@ -22,12 +22,40 @@ class OllamaDownloadService {
   private downloadControllers = new Map<string, AbortController>()
   private completedDownloads = new Set<string>()
   private availableModels: AvailableModel[] = []
+  private downloadCompletionCallbacks = new Set<(modelName: string) => void>()
 
   /**
    * 设置可用模型数据（用于获取 showname）
    */
   setAvailableModels(models: AvailableModel[]): void {
     this.availableModels = models
+  }
+
+  /**
+   * 添加下载完成回调
+   */
+  addDownloadCompletionCallback(callback: (modelName: string) => void): void {
+    this.downloadCompletionCallbacks.add(callback)
+  }
+
+  /**
+   * 移除下载完成回调
+   */
+  removeDownloadCompletionCallback(callback: (modelName: string) => void): void {
+    this.downloadCompletionCallbacks.delete(callback)
+  }
+
+  /**
+   * 通知下载完成
+   */
+  private notifyDownloadCompletion(modelName: string): void {
+    this.downloadCompletionCallbacks.forEach((callback) => {
+      try {
+        callback(modelName)
+      } catch (error) {
+        console.error('Error in download completion callback:', error)
+      }
+    })
   }
 
   /**
@@ -113,6 +141,9 @@ class OllamaDownloadService {
                   // 使用 showname 显示提示信息
                   const displayName = this.getModelDisplayName(modelName)
                   window.message.success(`模型 ${displayName} 下载完成，已自动添加到本地模型库`)
+
+                  // 通知下载完成
+                  this.notifyDownloadCompletion(modelName)
 
                   // 完成下载，清理状态
                   this.cleanupDownload(modelName)

@@ -1,10 +1,12 @@
 import { CloudDownloadOutlined } from '@ant-design/icons'
 import { Navbar, NavbarCenter } from '@renderer/components/app/Navbar'
 import Scrollbar from '@renderer/components/Scrollbar'
+import { useDefaultModel, useAssistants } from '@renderer/hooks/useAssistant'
 import { useProvider } from '@renderer/hooks/useProvider'
 import { useRuntime } from '@renderer/hooks/useRuntime'
 import ollamaDownloadService from '@renderer/services/OllamaDownloadService'
 import { useAppDispatch, useAppSelector } from '@renderer/store'
+import { setModel } from '@renderer/store/assistants'
 import { setOllamaKeepAliveTime } from '@renderer/store/llm'
 import { Model } from '@renderer/types'
 import { getDefaultGroupName } from '@renderer/utils'
@@ -129,6 +131,7 @@ interface AvailableModel {
   description: string
   tags: string[]
   size: string
+  type: string // 模型类型，如 "talking" 表示对话模型
   pullable: boolean
   source: string
 }
@@ -147,6 +150,9 @@ const OllamaPage: FC = () => {
   // 添加安全的 provider 获取
   const ollamaProviderHook = useProvider('ollama')
   const localProviderHook = useProvider('local')
+  const { defaultModel, topicNamingModel, translateModel, setDefaultModel, setTopicNamingModel, setTranslateModel } =
+    useDefaultModel()
+  const { assistants } = useAssistants()
 
   const { provider: ollamaProvider, updateProvider } = ollamaProviderHook
   const { provider: localProvider, addModel: addModelToLocal } = localProviderHook
@@ -249,6 +255,15 @@ const OllamaPage: FC = () => {
     }
   }, [apiHost, isConnected]) // 移除 availableModels 依赖，避免循环依赖
 
+  // 添加强制刷新和同步的函数
+  const forceRefreshAndSync = useCallback(async () => {
+    console.log('🔄 开始强制刷新模型列表并同步...')
+    // 清理同步记录，强制重新同步
+    syncedModelsRef.current.clear()
+    await fetchInstalledModels()
+    // fetchInstalledModels 完成后，同步逻辑会自动在 useEffect 中触发
+  }, [fetchInstalledModels])
+
   // 同步已安装模型到本地模型库（只同步JSON中定义的模型）
   useEffect(() => {
     // 只在两个数据源都准备好时才开始同步
@@ -260,7 +275,21 @@ const OllamaPage: FC = () => {
     console.log('已安装模型数量:', installedModels.length)
     console.log('JSON中定义的模型数量:', availableModels.length)
 
-    // 遍历已安装的模型
+    // 首先清理不再存在的模型
+    if (localProvider?.models && localProviderHook.removeModel) {
+      const ollamaModelsToRemove = localProvider.models.filter(
+        (localModel) =>
+          localModel.owned_by === 'ollama' && !installedModels.some((installed) => installed.name === localModel.id)
+      )
+
+      ollamaModelsToRemove.forEach((modelToRemove) => {
+        localProviderHook.removeModel(modelToRemove)
+        syncedModelsRef.current.delete(modelToRemove.id)
+        console.log(`🗑️ 已移除不存在的 Ollama 模型 "${modelToRemove.name}"`)
+      })
+    }
+
+    // 遍历已安装的模型进行同步
     installedModels.forEach((installedModel) => {
       const modelId = installedModel.name
       if (!modelId || isEmpty(modelId)) {
@@ -279,13 +308,13 @@ const OllamaPage: FC = () => {
         return // 不在 JSON 中定义的模型，跳过同步
       }
 
-      // 检查是否已经同步过
-      if (syncedModelsRef.current.has(modelId)) {
-        console.log(`📝 模型 "${modelId}" 已经同步过，跳过`)
+      // 只同步对话模型（type 为 "talking"）
+      if (matchedJsonModel.type !== 'talking') {
+        console.log(`⏭️ 跳过非对话模型: ${modelId} (type: ${matchedJsonModel.type})`)
         return
       }
 
-      // 只同步 JSON 中定义的模型
+      // 如果同步记录被清理，或者模型未同步，则进行同步
       if (localProvider?.models && addModelToLocal) {
         const existingModel = localProvider.models.find((m) => m?.id === modelId)
 
@@ -302,21 +331,194 @@ const OllamaPage: FC = () => {
           // 模型不存在，添加新模型
           addModelToLocal(newModel)
           syncedModelsRef.current.add(modelId)
-          console.log(`✅ 已将 JSON 中定义的 Ollama 模型 "${newModel}" 添加到本地模型库`)
-        } else {
-          // 模型已存在，检查是否需要更新显示名称
+          console.log(`✅ 已将 JSON 中定义的 Ollama 模型 "${newModel.name}" 添加到本地模型库`)
+        } else if (!syncedModelsRef.current.has(modelId)) {
+          // 模型存在但未在同步记录中，标记为已同步
+          syncedModelsRef.current.add(modelId)
+          console.log(`📝 模型 "${existingModel.name}" 已存在，标记为已同步`)
+
+          // 检查是否需要更新显示名称
           if (existingModel.name !== newModel.name) {
             localProviderHook.removeModel?.(existingModel)
             addModelToLocal(newModel)
             console.log(`🔄 已更新 Ollama 模型 "${newModel.name}" 的显示名称`)
           }
-          syncedModelsRef.current.add(modelId)
         }
       }
     })
 
     console.log('✅ 模型同步完成')
   }, [installedModels, availableModels, localProvider, addModelToLocal, localProviderHook])
+
+  // 检查默认模型是否为空，如果为空则设置第一个可用的对话模型为默认模型
+  useEffect(() => {
+    // 只有在模型同步完成后才检查默认模型
+    if (installedModels.length === 0 || availableModels.length === 0) {
+      return
+    }
+
+    // 检查各个模型是否为预定义的默认模型（Qwen3:4b）
+    const isDefaultSystemModel = defaultModel?.id === 'modelscope.cn/Qwen/Qwen3-4B-GGUF'
+    const isTopicNamingSystemModel = topicNamingModel?.id === 'modelscope.cn/Qwen/Qwen3-4B-GGUF'
+    const isTranslateSystemModel = translateModel?.id === 'modelscope.cn/Qwen/Qwen3-4B-GGUF'
+
+    // 获取已同步的本地模型（只包含 Ollama 对话模型）
+    const ollamaModels =
+      localProvider?.models?.filter(
+        (model) =>
+          model.provider === 'local' &&
+          model.owned_by === 'ollama' &&
+          installedModels.some((installed) => installed.name === model.id)
+      ) || []
+
+    // 进一步过滤，只选择对话模型
+    const talkingModels = ollamaModels.filter((model) => {
+      const matchedJsonModel = availableModels.find(
+        (jsonModel) => model.id === jsonModel.name || model.id.startsWith(`${jsonModel.name}:`)
+      )
+      return matchedJsonModel?.type === 'talking'
+    })
+
+    if (talkingModels.length > 0) {
+      const firstTalkingModel = talkingModels[0]
+
+      // 检查并设置默认助手模型
+      if (!defaultModel || isDefaultSystemModel) {
+        setDefaultModel(firstTalkingModel)
+        console.log(`✅ 已将 Ollama 对话模型 "${firstTalkingModel.name}" 设置为默认助手模型`)
+      }
+
+      // 检查并设置话题命名模型
+      if (!topicNamingModel || isTopicNamingSystemModel) {
+        setTopicNamingModel(firstTalkingModel)
+        console.log(`✅ 已将 Ollama 对话模型 "${firstTalkingModel.name}" 设置为话题命名模型`)
+      }
+
+      // 检查并设置翻译模型
+      if (!translateModel || isTranslateSystemModel) {
+        setTranslateModel(firstTalkingModel)
+        console.log(`✅ 已将 Ollama 对话模型 "${firstTalkingModel.name}" 设置为翻译模型`)
+      }
+    } else {
+      console.log('⚠️ 没有找到可用的 Ollama 对话模型来设置为默认模型')
+    }
+  }, [
+    installedModels,
+    availableModels,
+    localProvider,
+    defaultModel,
+    topicNamingModel,
+    translateModel,
+    setDefaultModel,
+    setTopicNamingModel,
+    setTranslateModel
+  ])
+
+  // 重新设置默认模型的辅助函数
+  const resetDefaultModelsIfNeeded = useCallback(
+    (deletedModelName: string) => {
+      // 检查被删除的模型是否是当前的默认模型
+      const isDeletedModelDefault = defaultModel?.id === deletedModelName
+      const isDeletedModelTopicNaming = topicNamingModel?.id === deletedModelName
+      const isDeletedModelTranslate = translateModel?.id === deletedModelName
+
+      // 检查是否有助手使用被删除的模型
+      const affectedAssistants = assistants.filter(
+        (assistant) => assistant.model?.id === deletedModelName || assistant.defaultModel?.id === deletedModelName
+      )
+
+      if (
+        isDeletedModelDefault ||
+        isDeletedModelTopicNaming ||
+        isDeletedModelTranslate ||
+        affectedAssistants.length > 0
+      ) {
+        console.log(`🔄 检测到被删除的模型 "${deletedModelName}" 是默认模型或被助手使用，正在重新设置...`)
+
+        // 获取已同步的本地模型（只包含 Ollama 对话模型）
+        const ollamaModels =
+          localProvider?.models?.filter(
+            (model) =>
+              model.provider === 'local' &&
+              model.owned_by === 'ollama' &&
+              installedModels.some((installed) => installed.name === model.id)
+          ) || []
+
+        // 进一步过滤，只选择对话模型
+        const talkingModels = ollamaModels.filter((model) => {
+          const matchedJsonModel = availableModels.find(
+            (jsonModel) => model.id === jsonModel.name || model.id.startsWith(`${jsonModel.name}:`)
+          )
+          return matchedJsonModel?.type === 'talking'
+        })
+
+        if (talkingModels.length > 0) {
+          const firstTalkingModel = talkingModels[0]
+
+          // 重新设置被删除的默认模型
+          if (isDeletedModelDefault) {
+            setDefaultModel(firstTalkingModel)
+            console.log(`✅ 已重新设置 Ollama 对话模型 "${firstTalkingModel.name}" 为默认助手模型`)
+          }
+
+          if (isDeletedModelTopicNaming) {
+            setTopicNamingModel(firstTalkingModel)
+            console.log(`✅ 已重新设置 Ollama 对话模型 "${firstTalkingModel.name}" 为话题命名模型`)
+          }
+
+          if (isDeletedModelTranslate) {
+            setTranslateModel(firstTalkingModel)
+            console.log(`✅ 已重新设置 Ollama 对话模型 "${firstTalkingModel.name}" 为翻译模型`)
+          }
+
+          // 更新所有使用被删除模型的助手
+          affectedAssistants.forEach((assistant) => {
+            dispatch(setModel({ assistantId: assistant.id, model: firstTalkingModel }))
+            console.log(`✅ 已将助手 "${assistant.name}" 的模型更新为 "${firstTalkingModel.name}"`)
+          })
+
+          if (affectedAssistants.length > 0) {
+            window.message.info(`已将 ${affectedAssistants.length} 个助手的模型更新为 ${firstTalkingModel.name}`)
+          }
+        } else {
+          console.log('⚠️ 没有找到可用的 Ollama 对话模型来重新设置默认模型')
+
+          // 如果没有可用的对话模型，则清空相应的默认模型
+          if (isDeletedModelDefault) {
+            console.log('🗑️ 清空默认助手模型')
+            // 这里可以选择设置为 null 或者保持现有行为
+          }
+          if (isDeletedModelTopicNaming) {
+            console.log('🗑️ 清空话题命名模型')
+            // 这里可以选择设置为 null 或者保持现有行为
+          }
+          if (isDeletedModelTranslate) {
+            console.log('🗑️ 清空翻译模型')
+            // 这里可以选择设置为 null 或者保持现有行为
+          }
+
+          // 对于受影响的助手，我们无法设置新模型，只能记录日志
+          if (affectedAssistants.length > 0) {
+            console.log(`⚠️ ${affectedAssistants.length} 个助手的模型无法更新，因为没有可用的替代模型`)
+            window.message.warning(`${affectedAssistants.length} 个助手的模型无法更新，请手动设置新模型`)
+          }
+        }
+      }
+    },
+    [
+      defaultModel,
+      topicNamingModel,
+      translateModel,
+      assistants,
+      localProvider,
+      installedModels,
+      availableModels,
+      setDefaultModel,
+      setTopicNamingModel,
+      setTranslateModel,
+      dispatch
+    ]
+  )
 
   // 获取可下载的模型列表
   const fetchAvailableModels = useCallback(async () => {
@@ -344,16 +546,37 @@ const OllamaPage: FC = () => {
     ollamaDownloadService.cancelDownload(modelName)
   }, [])
 
+  // 下载完成回调函数
+  const handleDownloadCompletion = useCallback(
+    async (modelName: string) => {
+      console.log(`⏳ 模型 ${modelName} 下载完成，准备刷新模型列表...`)
+      // 等待一小段时间确保模型完全安装，然后强制刷新
+      setTimeout(async () => {
+        await forceRefreshAndSync()
+      }, 1000)
+    },
+    [forceRefreshAndSync]
+  )
+
+  // 注册/注销下载完成回调
+  useEffect(() => {
+    ollamaDownloadService.addDownloadCompletionCallback(handleDownloadCompletion)
+    return () => {
+      ollamaDownloadService.removeDownloadCompletionCallback(handleDownloadCompletion)
+    }
+  }, [handleDownloadCompletion])
+
   // 下载模型
   const downloadModel = useCallback(
     async (modelName: string) => {
-      await ollamaDownloadService.downloadModel(modelName, apiHost)
-      // 下载完成后刷新已安装模型列表
-      setTimeout(() => {
-        fetchInstalledModels()
-      }, 500)
+      try {
+        await ollamaDownloadService.downloadModel(modelName, apiHost)
+      } catch (error) {
+        console.error('Download model failed:', error)
+        window.message.error(`下载模型失败: ${error}`)
+      }
     },
-    [apiHost, fetchInstalledModels]
+    [apiHost]
   )
 
   // 删除模型
@@ -371,7 +594,10 @@ const OllamaPage: FC = () => {
           // 使用 showname 显示删除成功提示
           const displayName = getInstalledModelDisplayName(modelName, availableModels)
           window.message.success(`模型 ${displayName} 删除成功`)
-          fetchInstalledModels()
+
+          // 先从同步记录中移除模型
+          syncedModelsRef.current.delete(modelName)
+          completedDownloadsRef.current.delete(modelName)
 
           // 从 local provider 中移除对应的模型
           if (localProvider?.models && localProviderHook.removeModel) {
@@ -382,10 +608,12 @@ const OllamaPage: FC = () => {
             }
           }
 
-          // 同时从同步记录中移除模型
-          syncedModelsRef.current.delete(modelName)
-          // 清理下载完成记录
-          completedDownloadsRef.current.delete(modelName)
+          // 检查被删除的模型是否是默认模型，如果是则重新设置
+          resetDefaultModelsIfNeeded(modelName)
+
+          // 最后刷新已安装模型列表
+          await forceRefreshAndSync()
+
           console.log(`🗑️ 已将 Ollama 模型 "${modelName}" 从同步记录中移除`)
         } else {
           throw new Error('Delete failed')
@@ -399,7 +627,7 @@ const OllamaPage: FC = () => {
         setLoading(false)
       }
     },
-    [apiHost, fetchInstalledModels, localProvider, localProviderHook]
+    [apiHost, availableModels, localProvider, localProviderHook, forceRefreshAndSync, resetDefaultModelsIfNeeded]
   )
 
   // 更新 API Host
@@ -635,7 +863,7 @@ const OllamaPage: FC = () => {
                     <CheckCircle size={18} />
                     已安装模型 ({jsonDefinedInstalledModels.length})
                   </Flex>
-                  <Button icon={<RefreshCw size={14} />} onClick={fetchInstalledModels} loading={loading} size="small">
+                  <Button icon={<RefreshCw size={14} />} onClick={forceRefreshAndSync} loading={loading} size="small">
                     刷新
                   </Button>
                 </Flex>
