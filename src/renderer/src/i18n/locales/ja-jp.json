@@ -1609,6 +1609,8 @@
       "models.check.disclaimer": "健康チェックはリクエストを送信するため、費用が発生する可能性があります。慎重に使用してください。",
       "models.default_assistant_model": "デフォルトアシスタントモデル",
       "models.default_assistant_model_description": "新しいアシスタントを作成する際に使用されるモデル。アシスタントがモデルを設定していない場合、このモデルが使用されます",
+      "models.unified_default_model": "デフォルトモデル",
+      "models.unified_default_model_description": "会話、トピック命名、翻訳の統一デフォルトモデル。すべてのデフォルト操作でこのモデルが使用されます。",
       "models.empty": "モデルが見つかりません",
       "models.enable_topic_naming": "トピックの自動命名",
       "models.manage.add_listed": "リストにモデルを追加",
