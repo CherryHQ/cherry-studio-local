@@ -87,12 +87,14 @@ export const ThinkingTagExtractionMiddleware: CompletionsMiddleware =
                         thinkingStartTime = Date.now()
                       }
 
-                      const thinkingDeltaChunk: ThinkingDeltaChunk = {
-                        type: ChunkType.THINKING_DELTA,
-                        text: extractionResult.content,
-                        thinking_millsec: thinkingStartTime > 0 ? Date.now() - thinkingStartTime : 0
+                      if (extractionResult.content?.trim()) {
+                        const thinkingDeltaChunk: ThinkingDeltaChunk = {
+                          type: ChunkType.THINKING_DELTA,
+                          text: extractionResult.content,
+                          thinking_millsec: thinkingStartTime > 0 ? Date.now() - thinkingStartTime : 0
+                        }
+                        controller.enqueue(thinkingDeltaChunk)
                       }
-                      controller.enqueue(thinkingDeltaChunk)
                     } else {
                       // 发送清理后的文本内容
                       const cleanTextChunk: TextDeltaChunk = {
