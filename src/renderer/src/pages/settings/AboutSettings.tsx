@@ -8,7 +8,7 @@ import { useRuntime } from '@renderer/hooks/useRuntime'
 // import { setUpdateState } from '@renderer/store/runtime'
 import { ThemeMode } from '@renderer/types'
 import { compareVersions, runAsyncFunction } from '@renderer/utils'
-import { UpgradeChannel } from '@shared/config/constant'
+// import { UpgradeChannel } from '@shared/config/constant'
 import { Avatar, Button, Progress, Row, Tag } from 'antd' //Radio,Switch,Tooltip
 // import { debounce } from 'lodash'
 import { Bug, FileCheck, Github, Globe, Mail, Rss } from 'lucide-react'
@@ -22,7 +22,7 @@ import { SettingContainer, SettingDivider, SettingGroup, SettingRow, SettingTitl
 
 const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
-  const [setIsPortable] = useState(false) //isPortable,
+  // const [setIsPortable] = useState(false) //isPortable,
   const { t } = useTranslation()
   const { theme } = useTheme()
   // const dispatch = useAppDispatch()
@@ -93,11 +93,11 @@ const AboutSettings: FC = () => {
 
   const hasNewVersion = update?.info?.version && version ? compareVersions(update.info.version, version) > 0 : false
 
-  const currentChannelByVersion =
-    [
-      { pattern: `-${UpgradeChannel.BETA}.`, channel: UpgradeChannel.BETA },
-      { pattern: `-${UpgradeChannel.RC}.`, channel: UpgradeChannel.RC }
-    ].find(({ pattern }) => version.includes(pattern))?.channel || UpgradeChannel.LATEST
+  // const currentChannelByVersion =
+  //   [
+  //     { pattern: `-${UpgradeChannel.BETA}.`, channel: UpgradeChannel.BETA },
+  //     { pattern: `-${UpgradeChannel.RC}.`, channel: UpgradeChannel.RC }
+  //   ].find(({ pattern }) => version.includes(pattern))?.channel || UpgradeChannel.LATEST
 
   // Clear update info when switching upgrade channel
   // const handleTestChannelChange = async (value: UpgradeChannel) => {
@@ -162,7 +162,7 @@ const AboutSettings: FC = () => {
     runAsyncFunction(async () => {
       const appInfo = await window.api.getAppInfo()
       setVersion(appInfo.version)
-      setIsPortable(appInfo.isPortable)
+      // setIsPortable(appInfo.isPortable)
     })
     // setAutoCheckUpdate(autoCheckUpdate)
   })
