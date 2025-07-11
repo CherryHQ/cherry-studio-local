@@ -413,28 +413,28 @@ export const SYSTEM_MODELS: Record<string, Model[]> = {
   defaultModel: [
     {
       // 默认助手模型
-      id: 'modelscope.cn/Qwen/Qwen3-4B-GGUF',
-      name: 'Qwen3:4b',
+      id: 'modelscope.cn/unsloth/Qwen3-4B-GGUF',
+      name: 'Qwen3-4B',
       provider: 'local',
       group: 'Qwen3'
     },
     {
       // 默认话题命名模型
-      id: 'modelscope.cn/Qwen/Qwen3-4B-GGUF',
-      name: 'Qwen3:4b',
+      id: 'modelscope.cn/unsloth/Qwen3-4B-GGUF',
+      name: 'Qwen3-4B',
       provider: 'local',
       group: 'Qwen3'
     },
     {
       // 默认翻译模型
-      id: 'modelscope.cn/Qwen/Qwen3-4B-GGUF',
+      id: 'modelscope.cn/unsloth/Qwen3-4B-GGUF',
       name: 'Qwen3-4B',
       provider: 'local',
       group: 'Qwen3'
     },
     {
       // 默认快捷助手模型
-      id: 'modelscope.cn/Qwen/Qwen3-4B-GGUF',
+      id: 'modelscope.cn/unsloth/Qwen3-4B-GGUF',
       name: 'Qwen3-4B',
       provider: 'local',
       group: 'Qwen3'
