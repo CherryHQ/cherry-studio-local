@@ -1764,7 +1764,7 @@ const migrateConfig = {
       return state
     }
   },
-  '116': (state: RootState) => {
+  '121': (state: RootState) => {
     try {
       // Initialize downloads field for ollama models download progress
       if (!state.llm.downloads) {
