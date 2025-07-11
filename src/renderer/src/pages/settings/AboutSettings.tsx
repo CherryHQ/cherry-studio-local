@@ -5,14 +5,12 @@ import { APP_NAME, AppLogo } from '@renderer/config/env'
 import { useTheme } from '@renderer/context/ThemeProvider'
 import { useMinappPopup } from '@renderer/hooks/useMinappPopup'
 import { useRuntime } from '@renderer/hooks/useRuntime'
-import { useSettings } from '@renderer/hooks/useSettings'
-import { useAppDispatch } from '@renderer/store'
-import { setUpdateState } from '@renderer/store/runtime'
+// import { setUpdateState } from '@renderer/store/runtime'
 import { ThemeMode } from '@renderer/types'
 import { compareVersions, runAsyncFunction } from '@renderer/utils'
 import { UpgradeChannel } from '@shared/config/constant'
-import { Avatar, Button, Progress, Radio, Row, Switch, Tag, Tooltip } from 'antd'
-import { debounce } from 'lodash'
+import { Avatar, Button, Progress, Row, Tag } from 'antd' //Radio,Switch,Tooltip
+// import { debounce } from 'lodash'
 import { Bug, FileCheck, Github, Globe, Mail, Rss } from 'lucide-react'
 import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,38 +22,37 @@ import { SettingContainer, SettingDivider, SettingGroup, SettingRow, SettingTitl
 
 const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
-  const [isPortable, setIsPortable] = useState(false)
+  const [setIsPortable] = useState(false) //isPortable,
   const { t } = useTranslation()
-  const { autoCheckUpdate, setAutoCheckUpdate, testPlan, setTestPlan, testChannel, setTestChannel } = useSettings()
   const { theme } = useTheme()
-  const dispatch = useAppDispatch()
+  // const dispatch = useAppDispatch()
   const { update } = useRuntime()
   const { openMinapp } = useMinappPopup()
 
-  const onCheckUpdate = debounce(
-    async () => {
-      if (update.checking || update.downloading) {
-        return
-      }
+  // const onCheckUpdate = debounce(
+  //   async () => {
+  //     if (update.checking || update.downloading) {
+  //       return
+  //     }
 
-      if (update.downloaded) {
-        window.api.showUpdateDialog()
-        return
-      }
+  //     if (update.downloaded) {
+  //       window.api.showUpdateDialog()
+  //       return
+  //     }
 
-      dispatch(setUpdateState({ checking: true }))
+  //     dispatch(setUpdateState({ checking: true }))
 
-      try {
-        await window.api.checkForUpdate()
-      } catch (error) {
-        window.message.error(t('settings.about.updateError'))
-      }
+  //     try {
+  //       await window.api.checkForUpdate()
+  //     } catch (error) {
+  //       window.message.error(t('settings.about.updateError'))
+  //     }
 
-      dispatch(setUpdateState({ checking: false }))
-    },
-    2000,
-    { leading: true, trailing: false }
-  )
+  //     dispatch(setUpdateState({ checking: false }))
+  //   },
+  //   2000,
+  //   { leading: true, trailing: false }
+  // )
 
   const onOpenWebsite = (url: string) => {
     window.api.openWebsite(url)
@@ -102,64 +99,64 @@ const AboutSettings: FC = () => {
       { pattern: `-${UpgradeChannel.RC}.`, channel: UpgradeChannel.RC }
     ].find(({ pattern }) => version.includes(pattern))?.channel || UpgradeChannel.LATEST
 
-  const handleTestChannelChange = async (value: UpgradeChannel) => {
-    if (testPlan && currentChannelByVersion !== UpgradeChannel.LATEST && value !== currentChannelByVersion) {
-      window.message.warning(t('settings.general.test_plan.version_channel_not_match'))
-    }
-    setTestChannel(value)
-    // Clear update info when switching upgrade channel
-    dispatch(
-      setUpdateState({
-        available: false,
-        info: null,
-        downloaded: false,
-        checking: false,
-        downloading: false,
-        downloadProgress: 0
-      })
-    )
-  }
+  // Clear update info when switching upgrade channel
+  // const handleTestChannelChange = async (value: UpgradeChannel) => {
+  //   if (testPlan && currentChannelByVersion !== UpgradeChannel.LATEST && value !== currentChannelByVersion) {
+  //     window.message.warning(t('settings.general.test_plan.version_channel_not_match'))
+  //   }
+  //   setTestChannel(value)
+  //   dispatch(
+  //     setUpdateState({
+  //       available: false,
+  //       info: null,
+  //       downloaded: false,
+  //       checking: false,
+  //       downloading: false,
+  //       downloadProgress: 0
+  //     })
+  //   )
+  // }
 
   // Get available test version options based on current version
-  const getAvailableTestChannels = () => {
-    return [
-      {
-        tooltip: t('settings.general.test_plan.rc_version_tooltip'),
-        label: t('settings.general.test_plan.rc_version'),
-        value: UpgradeChannel.RC
-      },
-      {
-        tooltip: t('settings.general.test_plan.beta_version_tooltip'),
-        label: t('settings.general.test_plan.beta_version'),
-        value: UpgradeChannel.BETA
-      }
-    ]
-  }
+  // const getAvailableTestChannels = () => {
+  //   return [
+  //     {
+  //       tooltip: t('settings.general.test_plan.rc_version_tooltip'),
+  //       label: t('settings.general.test_plan.rc_version'),
+  //       value: UpgradeChannel.RC
+  //     },
+  //     {
+  //       tooltip: t('settings.general.test_plan.beta_version_tooltip'),
+  //       label: t('settings.general.test_plan.beta_version'),
+  //       value: UpgradeChannel.BETA
+  //     }
+  //   ]
+  // }
 
-  const handleSetTestPlan = (value: boolean) => {
-    setTestPlan(value)
-    dispatch(
-      setUpdateState({
-        available: false,
-        info: null,
-        downloaded: false,
-        checking: false,
-        downloading: false,
-        downloadProgress: 0
-      })
-    )
+  // const handleSetTestPlan = (value: boolean) => {
+  //   setTestPlan(value)
+  //   dispatch(
+  //     setUpdateState({
+  //       available: false,
+  //       info: null,
+  //       downloaded: false,
+  //       checking: false,
+  //       downloading: false,
+  //       downloadProgress: 0
+  //     })
+  //   )
 
-    if (value === true) {
-      setTestChannel(getTestChannel())
-    }
-  }
+  //   if (value === true) {
+  //     setTestChannel(getTestChannel())
+  //   }
+  // }
 
-  const getTestChannel = () => {
-    if (testChannel === UpgradeChannel.LATEST) {
-      return UpgradeChannel.RC
-    }
-    return testChannel
-  }
+  // const getTestChannel = () => {
+  //   if (testChannel === UpgradeChannel.LATEST) {
+  //     return UpgradeChannel.RC
+  //   }
+  //   return testChannel
+  // }
 
   useEffect(() => {
     runAsyncFunction(async () => {
@@ -168,7 +165,7 @@ const AboutSettings: FC = () => {
       setIsPortable(appInfo.isPortable)
     })
     // setAutoCheckUpdate(autoCheckUpdate)
-  }, [autoCheckUpdate, setAutoCheckUpdate])
+  })
 
   return (
     <SettingContainer theme={theme}>
@@ -359,7 +356,7 @@ const Description = styled.div`
   text-align: center;
 `
 
-const CheckUpdateButton = styled(Button)``
+// const CheckUpdateButton = styled(Button)``
 
 const AvatarWrapper = styled.div`
   position: relative;
