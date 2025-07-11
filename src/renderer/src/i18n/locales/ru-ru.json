@@ -2037,6 +2037,8 @@
       "models.check.use_all_keys": "Использовать все ключи",
       "models.default_assistant_model": "Модель ассистента по умолчанию",
       "models.default_assistant_model_description": "Модель, используемая при создании нового ассистента, если ассистент не имеет настроенной модели, будет использоваться эта модель",
+      "models.unified_default_model": "Модель по умолчанию",
+      "models.unified_default_model_description": "Единая модель по умолчанию для разговоров, именования тем и перевода. Эта модель будет использоваться для всех операций по умолчанию.",
       "models.empty": "Модели не найдены",
       "models.enable_topic_naming": "Автоматическое переименование топика",
       "models.manage.add_listed": "Добавить в список",

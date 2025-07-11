@@ -1119,7 +1119,8 @@
       "xirang": "天翼云息壤",
       "yi": "零一万物",
       "zhinao": "360 智脑",
-      "zhipu": "智谱 AI"
+      "zhipu": "智谱 AI",
+       "local": "local"
     },
     "restore": {
       "confirm": "确定要恢复数据吗？",
@@ -2037,6 +2038,8 @@
       "models.check.use_all_keys": "使用密钥",
       "models.default_assistant_model": "默认助手模型",
       "models.default_assistant_model_description": "创建新助手时使用的模型，如果助手未设置模型，则使用此模型",
+      "models.unified_default_model": "默认模型",
+      "models.unified_default_model_description": "对话、话题命名和翻译的统一默认模型。此模型将用于所有默认操作。",
       "models.empty": "没有模型",
       "models.enable_topic_naming": "话题自动重命名",
       "models.manage.add_listed": "添加列表中的模型",

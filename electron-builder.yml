@@ -16,6 +16,7 @@ protocols:
   - name: Cherry Studio
     schemes:
       - cherrystudio
+asar: false
 files:
   - '**/*'
   - '!**/{.vscode,.yarn,.yarn-lock,.github,.cursorrules,.prettierrc}'
@@ -108,8 +109,9 @@ linux:
   mimeTypes:
     - x-scheme-handler/cherrystudio
 publish:
-  provider: generic
-  url: https://releases.cherry-ai.com
+  provider: github
+  owner: CherryHQ
+  repo: cherry-studio-local
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
 afterPack: scripts/after-pack.js

@@ -2037,6 +2037,8 @@
       "models.check.use_all_keys": "使用密鑰",
       "models.default_assistant_model": "預設助手模型",
       "models.default_assistant_model_description": "建立新助手時使用的模型，如果助手未設定模型，則使用此模型",
+      "models.unified_default_model": "預設模型",
+      "models.unified_default_model_description": "對話、話題命名和翻譯的統一預設模型。此模型將用於所有預設操作。",
       "models.empty": "找不到模型",
       "models.enable_topic_naming": "話題自動重新命名",
       "models.manage.add_listed": "添加列表中的模型",

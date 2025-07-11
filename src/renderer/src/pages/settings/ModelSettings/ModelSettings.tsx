@@ -26,8 +26,7 @@ import DefaultAssistantSettings from './DefaultAssistantSettings'
 import TopicNamingModalPopup from './TopicNamingModalPopup'
 
 const ModelSettings: FC = () => {
-  const { defaultModel, topicNamingModel, translateModel, setDefaultModel, setTopicNamingModel, setTranslateModel } =
-    useDefaultModel()
+  const { defaultModel, setDefaultModel, setTopicNamingModel, setTranslateModel } = useDefaultModel()
   const { defaultAssistant } = useDefaultAssistant()
   const { assistants } = useAssistants()
   const { providers } = useProviders()
@@ -66,15 +65,15 @@ const ModelSettings: FC = () => {
     [defaultModel]
   )
 
-  const defaultTopicNamingModel = useMemo(
-    () => (hasModel(topicNamingModel) ? getModelUniqId(topicNamingModel) : undefined),
-    [topicNamingModel]
-  )
-
-  const defaultTranslateModel = useMemo(
-    () => (hasModel(translateModel) ? getModelUniqId(translateModel) : undefined),
-    [translateModel]
-  )
+  // Unified model change handler that sets all three models
+  const handleUnifiedModelChange = (value: string) => {
+    const selectedModel = find(allModels, JSON.parse(value)) as Model
+    if (selectedModel) {
+      setDefaultModel(selectedModel)
+      setTopicNamingModel(selectedModel)
+      setTranslateModel(selectedModel)
+    }
+  }
 
   const onUpdateTranslateModel = async () => {
     const prompt = await PromptPopup.show({
@@ -101,7 +100,7 @@ const ModelSettings: FC = () => {
         <SettingTitle style={{ marginBottom: 12 }}>
           <HStack alignItems="center" gap={10}>
             <MessageSquareMore size={18} color="var(--color-text)" />
-            {t('settings.models.default_assistant_model')}
+            {t('settings.models.unified_default_model')}
           </HStack>
         </SettingTitle>
         <HStack alignItems="center">
@@ -109,61 +108,21 @@ const ModelSettings: FC = () => {
             value={defaultModelValue}
             defaultValue={defaultModelValue}
             style={{ width: 360 }}
-            onChange={(value) => setDefaultModel(find(allModels, JSON.parse(value)) as Model)}
+            onChange={handleUnifiedModelChange}
             options={selectOptions}
             showSearch
             placeholder={t('settings.models.empty')}
           />
           <Button icon={<Settings2 size={16} />} style={{ marginLeft: 8 }} onClick={DefaultAssistantSettings.show} />
-        </HStack>
-        <SettingDescription>{t('settings.models.default_assistant_model_description')}</SettingDescription>
-      </SettingGroup>
-      <SettingGroup theme={theme}>
-        <SettingTitle style={{ marginBottom: 12 }}>
-          <HStack alignItems="center" gap={10}>
-            <FolderPen size={18} color="var(--color-text)" />
-            {t('settings.models.topic_naming_model')}
-          </HStack>
-        </SettingTitle>
-        <HStack alignItems="center">
-          <Select
-            value={defaultTopicNamingModel}
-            defaultValue={defaultTopicNamingModel}
-            style={{ width: 360 }}
-            onChange={(value) => setTopicNamingModel(find(allModels, JSON.parse(value)) as Model)}
-            options={selectOptions}
-            showSearch
-            placeholder={t('settings.models.empty')}
-          />
-          <Button icon={<Settings2 size={16} />} style={{ marginLeft: 8 }} onClick={TopicNamingModalPopup.show} />
-        </HStack>
-        <SettingDescription>{t('settings.models.topic_naming_model_description')}</SettingDescription>
-      </SettingGroup>
-      <SettingGroup theme={theme}>
-        <SettingTitle style={{ marginBottom: 12 }}>
-          <HStack alignItems="center" gap={10}>
-            <Languages size={18} color="var(--color-text)" />
-            {t('settings.models.translate_model')}
-          </HStack>
-        </SettingTitle>
-        <HStack alignItems="center">
-          <Select
-            value={defaultTranslateModel}
-            defaultValue={defaultTranslateModel}
-            style={{ width: 360 }}
-            onChange={(value) => setTranslateModel(find(allModels, JSON.parse(value)) as Model)}
-            options={selectOptions}
-            showSearch
-            placeholder={t('settings.models.empty')}
-          />
-          <Button icon={<Settings2 size={16} />} style={{ marginLeft: 8 }} onClick={onUpdateTranslateModel} />
+          <Button icon={<FolderPen size={16} />} style={{ marginLeft: 8 }} onClick={TopicNamingModalPopup.show} />
+          <Button icon={<Languages size={16} />} style={{ marginLeft: 8 }} onClick={onUpdateTranslateModel} />
           {translateModelPrompt !== TRANSLATE_PROMPT && (
             <Tooltip title={t('common.reset')}>
               <Button icon={<RedoOutlined />} style={{ marginLeft: 8 }} onClick={onResetTranslatePrompt}></Button>
             </Tooltip>
           )}
         </HStack>
-        <SettingDescription>{t('settings.models.translate_model_description')}</SettingDescription>
+        <SettingDescription>{t('settings.models.unified_default_model_description')}</SettingDescription>
       </SettingGroup>
       <SettingGroup theme={theme}>
         <HStack alignItems="center" style={{ marginBottom: 12 }}>

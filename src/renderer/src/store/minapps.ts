@@ -5,7 +5,7 @@ import { MinAppType, SidebarIcon } from '@renderer/types'
 export const DEFAULT_SIDEBAR_ICONS: SidebarIcon[] = [
   'assistants',
   'agents',
-  'paintings',
+  // 'paintings',
   'translate',
   'minapp',
   'knowledge',

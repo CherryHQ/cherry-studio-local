@@ -26,6 +26,7 @@ const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
   const [isPortable, setIsPortable] = useState(false)
   const { t } = useTranslation()
+  const { earlyAccess, setEarlyAccess, upgradeChannel, setUpgradeChannel } = useSettings()
   const { autoCheckUpdate, setAutoCheckUpdate, testPlan, setTestPlan, testChannel, setTestChannel } = useSettings()
   const { theme } = useTheme()
   const dispatch = useAppDispatch()
@@ -136,6 +137,20 @@ const AboutSettings: FC = () => {
     ]
   }
 
+  // const handlerSetEarlyAccess = (value: boolean) => {
+  //   setEarlyAccess(value)
+  //   dispatch(
+  //     setUpdateState({
+  //       available: false,
+  //       info: null,
+  //       downloaded: false,
+  //       checking: false,
+  //       downloading: false,
+  //       downloadProgress: 0
+  //     })
+  //   )
+  //   if (value === false) setUpgradeChannel(UpgradeChannel.LATEST)
+  // }
   const handleSetTestPlan = (value: boolean) => {
     setTestPlan(value)
     dispatch(
@@ -167,7 +182,7 @@ const AboutSettings: FC = () => {
       setVersion(appInfo.version)
       setIsPortable(appInfo.isPortable)
     })
-    setAutoCheckUpdate(autoCheckUpdate)
+    // setAutoCheckUpdate(autoCheckUpdate)
   }, [autoCheckUpdate, setAutoCheckUpdate])
 
   return (
@@ -223,8 +238,8 @@ const AboutSettings: FC = () => {
         </AboutHeader>
         {!isPortable && (
           <>
-            <SettingDivider />
-            <SettingRow>
+            {/*<SettingDivider />
+             <SettingRow>
               <SettingRowTitle>{t('settings.general.auto_check_update.title')}</SettingRowTitle>
               <Switch value={autoCheckUpdate} onChange={(v) => setAutoCheckUpdate(v)} />
             </SettingRow>
@@ -234,6 +249,8 @@ const AboutSettings: FC = () => {
               <Tooltip title={t('settings.general.test_plan.tooltip')} trigger={['hover', 'focus']}>
                 <Switch value={testPlan} onChange={(v) => handleSetTestPlan(v)} />
               </Tooltip>
+            </SettingRow> */}
+            {/* {earlyAccess && getAvailableTestChannels().length > 0 && (
             </SettingRow>
             {testPlan && (
               <>
@@ -253,7 +270,7 @@ const AboutSettings: FC = () => {
                   </Radio.Group>
                 </SettingRow>
               </>
-            )}
+            )} */}
           </>
         )}
       </SettingGroup>

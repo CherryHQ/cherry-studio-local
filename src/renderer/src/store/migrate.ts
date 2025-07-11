@@ -1763,6 +1763,20 @@ const migrateConfig = {
     } catch (error) {
       return state
     }
+  },
+  '116': (state: RootState) => {
+    try {
+      // Initialize downloads field for ollama models download progress
+      if (!state.llm.downloads) {
+        state.llm.downloads = {
+          downloading: [],
+          progress: {}
+        }
+      }
+      return state
+    } catch (error) {
+      return state
+    }
   }
 }
 

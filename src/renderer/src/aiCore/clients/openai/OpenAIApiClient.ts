@@ -56,6 +56,7 @@ import { ChatCompletionContentPart, ChatCompletionContentPartRefusal, ChatComple
 import { GenericChunk } from '../../middleware/schemas'
 import { RequestTransformer, ResponseChunkTransformer, ResponseChunkTransformerContext } from '../types'
 import { OpenAIBaseClient } from './OpenAIBaseClient'
+import { t } from 'i18next'
 
 export class OpenAIAPIClient extends OpenAIBaseClient<
   OpenAI | AzureOpenAI,
@@ -74,6 +75,41 @@ export class OpenAIAPIClient extends OpenAIBaseClient<
     payload: OpenAISdkParams,
     options?: OpenAI.RequestOptions
   ): Promise<OpenAISdkRawOutput> {
+    const checkAndUpdateModel = async (model, isActive) => {
+      try {
+        const response = await fetch("http://localhost:11434" + '/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ model, messages: [], keep_alive: isActive ? undefined : 0 })
+        })
+
+        if (response.status !== 200) {
+          throw new Error('API connection failed')
+        }
+
+        return true
+      } catch (error) {
+        window.message.error(t('message.api.connection.failed'))
+        return false
+      }
+    }
+    const isHaveModel = sessionStorage.getItem('localLargeModel')
+    console.log(!isHaveModel,payload.model,"????")
+    if (!isHaveModel) {
+      // 初始化模型
+      await checkAndUpdateModel(payload.model, true)
+      sessionStorage.setItem('localLargeModel', payload.model)
+    } else if (isHaveModel !== payload.model) {
+      // 先关闭旧模型
+      await checkAndUpdateModel(isHaveModel, false) // 传递null表示关闭当前模型
+      sessionStorage.setItem('localLargeModel', '')
+
+      // 再启动新模型
+      await checkAndUpdateModel(payload.model, true)
+      sessionStorage.setItem('localLargeModel', payload.model)
+    }
     const sdk = await this.getSdkInstance()
     // @ts-ignore - SDK参数可能有额外的字段
     return await sdk.chat.completions.create(payload, options)

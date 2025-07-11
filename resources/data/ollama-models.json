@@ -1,0 +1,52 @@
+[
+  {
+    "showname": "Qwen3-4B",
+    "name": "modelscope.cn/unsloth/Qwen3-4B-GGUF",
+    "description": "Qwen3 4B Instruct model - Latest generation Chinese and English chat model, compact size",
+    "tags": ["4B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
+    "size": "2.7GB",
+    "type":"talking",
+    "pullable": true,
+    "source": "modelscope"
+  },
+  {
+    "showname": "Qwen3-8B",
+    "name": "modelscope.cn/unsloth/Qwen3-8B-GGUF",
+    "description": "Qwen3 8B Instruct model - Powerful Chinese and English chat model with enhanced reasoning",
+    "tags": ["8B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
+    "size": "4.9GB",
+    "type":"talking",
+    "pullable": true,
+    "source": "modelscope"
+  },
+  {
+    "showname": "Qwen3-14B",
+    "name": "modelscope.cn/unsloth/Qwen3-14B-GGUF",
+    "description": "Qwen3 14B Instruct model - Powerful Chinese and English chat model with enhanced reasoning",
+    "tags": ["14B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
+    "size": "9.2GB",
+    "type":"talking",
+    "pullable": true,
+    "source": "modelscope"
+  },
+  {
+    "showname": "Qwen2.5-3B-Instruct",
+    "name": "modelscope.cn/Qwen/Qwen2.5-3B-Instruct-GGUF",
+    "description": "Qwen2.5 3B Instruct model - Efficient chat model with good Chinese and English capabilities",
+    "tags": ["3B", "Alibaba", "Multilingual", "Chinese", "Chat", "Instruct"],
+    "size": "2.1GB",
+    "type":"talking",
+    "pullable": true,
+    "source": "modelscope"
+  },
+  {
+    "showname": "bge-m3",
+    "name": "modelscope.cn/Embedding-GGUF/bge-m3-GGUF",
+    "description": "BGE-M3 embedding model - Multilingual embedding model for retrieval and similarity",
+    "tags": ["Embedding", "Multilingual", "BGE", "Retrieval"],
+    "type":"Embedding",
+    "size": "2.2GB",
+    "pullable": true,
+    "source": "modelscope"
+  }
+]

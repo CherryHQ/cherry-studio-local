@@ -4,6 +4,13 @@ import { SYSTEM_MODELS } from '@renderer/config/models'
 import { Model, Provider } from '@renderer/types'
 import { uniqBy } from 'lodash'
 
+interface DownloadProgress {
+  status: string
+  total?: number
+  completed?: number
+  digest?: string
+}
+
 type LlmSettings = {
   ollama: {
     keepAliveTime: number
@@ -31,9 +38,23 @@ export interface LlmState {
   translateModel: Model
   quickAssistantId: string
   settings: LlmSettings
+  downloads: {
+    downloading: string[] // 正在下载的模型名称列表
+    progress: Record<string, DownloadProgress> // 下载进度
+  }
 }
 
 export const INITIAL_PROVIDERS: Provider[] = [
+  {
+    id: 'local',
+    name: 'local',
+    type: 'openai',
+    apiKey: '',
+    apiHost: 'http://localhost:11434',
+    models: SYSTEM_MODELS.local,
+    isSystem: true,
+    enabled: true
+  },
   {
     id: 'silicon',
     name: 'Silicon',
@@ -42,7 +63,7 @@ export const INITIAL_PROVIDERS: Provider[] = [
     apiHost: 'https://api.siliconflow.cn',
     models: SYSTEM_MODELS.silicon,
     isSystem: true,
-    enabled: true
+    enabled: false
   },
   {
     id: 'aihubmix',
@@ -564,6 +585,10 @@ export const initialState: LlmState = {
       projectId: '',
       location: ''
     }
+  },
+  downloads: {
+    downloading: [],
+    progress: {}
   }
 }
 
@@ -574,10 +599,12 @@ const getIntegratedInitialState = () => {
     defaultModel: model,
     topicNamingModel: model,
     translateModel: model,
+    quickAssistantId: '',
     providers: [
       {
         id: 'ollama',
         name: 'Ollama',
+        type: 'openai',
         apiKey: 'ollama',
         apiHost: 'http://localhost:15537/v1/',
         models: [model],
@@ -594,7 +621,19 @@ const getIntegratedInitialState = () => {
       },
       gpustack: {
         keepAliveTime: 3600
+      },
+      vertexai: {
+        serviceAccount: {
+          privateKey: '',
+          clientEmail: ''
+        },
+        projectId: '',
+        location: ''
       }
+    },
+    downloads: {
+      downloading: [],
+      progress: {}
     }
   } as LlmState
 }
@@ -701,6 +740,26 @@ const llmSlice = createSlice({
           provider.models[modelIndex] = action.payload.model
         }
       }
+    },
+    // Download related actions
+    startDownload: (state, action: PayloadAction<string>) => {
+      const modelName = action.payload
+      if (!state.downloads.downloading.includes(modelName)) {
+        state.downloads.downloading.push(modelName)
+      }
+    },
+    stopDownload: (state, action: PayloadAction<string>) => {
+      const modelName = action.payload
+      state.downloads.downloading = state.downloads.downloading.filter((name) => name !== modelName)
+      delete state.downloads.progress[modelName]
+    },
+    updateDownloadProgress: (state, action: PayloadAction<{ modelName: string; progress: DownloadProgress }>) => {
+      const { modelName, progress } = action.payload
+      state.downloads.progress[modelName] = progress
+    },
+    clearAllDownloads: (state) => {
+      state.downloads.downloading = []
+      state.downloads.progress = {}
     }
   }
 })
@@ -723,7 +782,11 @@ export const {
   setVertexAILocation,
   setVertexAIServiceAccountPrivateKey,
   setVertexAIServiceAccountClientEmail,
-  updateModel
+  updateModel,
+  startDownload,
+  stopDownload,
+  updateDownloadProgress,
+  clearAllDownloads
 } = llmSlice.actions
 
 export default llmSlice.reducer
