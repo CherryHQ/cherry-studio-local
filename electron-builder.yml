@@ -16,7 +16,6 @@ protocols:
   - name: Cherry Studio
     schemes:
       - cherrystudio
-asar: false
 files:
   - '**/*'
   - '!**/{.vscode,.yarn,.yarn-lock,.github,.cursorrules,.prettierrc}'
@@ -59,9 +58,13 @@ files:
   - '!node_modules/selection-hook/node_modules' # we don't need what in the node_modules dir
   - '!node_modules/selection-hook/src' # we don't need source files
   - '!**/*.{h,iobj,ipdb,tlog,recipe,vcxproj,vcxproj.filters,Makefile,*.Makefile}' # filter .node build files
+  - '!ollama/*'
 asarUnpack:
   - resources/**
   - '**/*.{metal,exp,lib}'
+extraResources:
+  - from: './ollama'
+    to: 'ollama'
 win:
   executableName: Cherry Studio
   artifactName: ${productName}-${version}-${arch}-setup.${ext}

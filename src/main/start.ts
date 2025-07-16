@@ -1,23 +1,36 @@
 import { ChildProcess, exec, spawn } from 'child_process'
 import { app } from 'electron'
 import logger from 'electron-log'
+const os = require('os')
 
-import { getResourcePath } from './utils'
 const fs = require('fs')
 const net = require('net')
 const path = require('path')
 
-const executable = process.platform === 'win32' ? 'ollama.exe' : 'ollama'
-// const os = process.platform === 'win32' ? 'win' : 'mac'
+const executable = 'ollama.exe'
 const port = 11434
 
-// let ollamaModelsPath: string
+let ollmaPath: string
+let binPath: string
 
-// 使用统一的资源路径处理
-const resourcesPath = getResourcePath()
-const ollmaPath: string = path.join(resourcesPath, 'ollama')
-const binPath: string = ollmaPath
+// Set ollamaModelsPath first
+const ollamaModelsPath = path.join(os.homedir(), '.cherrystudio', 'models')
+fs.mkdirSync(ollamaModelsPath, { recursive: true })
+// Create output directory structure
+if (app.isPackaged) {
+  ollmaPath = path.join(process.resourcesPath, 'ollama')
+  binPath = ollmaPath
+} else {
+  ollmaPath = path.join(__dirname, '..', '..', 'ollama')
+  binPath = ollmaPath
+}
 
+console.log('ollamaModelsPath', ollamaModelsPath)
+logger.log('ollamaModelsPath', ollamaModelsPath)
+console.log('ollmaPath', ollmaPath)
+logger.log('ollmaPath', ollmaPath)
+console.log('binPath', binPath)
+logger.log('binPath', binPath)
 // 存储启动的进程以便退出时清理
 let ollamaMainProcess: ChildProcess | null = null
 
@@ -35,52 +48,29 @@ const isPortInUse = (port: number): Promise<boolean> => {
   })
 }
 
-// 强制关闭ollama相关进程
+// 强制关闭ollama相关进程 (Windows only)
 const killOllamaProcesses = (): Promise<void> => {
   return new Promise((resolve) => {
-    if (process.platform === 'win32') {
-      // Windows平台使用taskkill命令
-      const commands = ['taskkill /F /IM ollama.exe /T', 'taskkill /F /IM ollama-lib.exe /T']
+    // Windows平台使用taskkill命令
+    const commands = ['taskkill /F /IM ollama.exe /T', 'taskkill /F /IM ollama-lib.exe /T']
 
-      let completedCommands = 0
-      const totalCommands = commands.length
+    let completedCommands = 0
+    const totalCommands = commands.length
 
-      commands.forEach((command) => {
-        exec(command, (error, _stdout, _stderr) => {
-          if (error) {
-            logger.log(`Kill process command failed: ${command}, error: ${error.message}`)
-          } else {
-            logger.log(`Successfully executed: ${command}`)
-          }
+    commands.forEach((command) => {
+      exec(command, (error) => {
+        if (error) {
+          logger.log(`Kill process command failed: ${command}, error: ${error.message}`)
+        } else {
+          logger.log(`Successfully executed: ${command}`)
+        }
 
-          completedCommands++
-          if (completedCommands === totalCommands) {
-            resolve()
-          }
-        })
+        completedCommands++
+        if (completedCommands === totalCommands) {
+          resolve()
+        }
       })
-    } else {
-      // macOS/Linux平台使用pkill命令
-      const commands = ['pkill -f ollama', 'pkill -f ollama-lib']
-
-      let completedCommands = 0
-      const totalCommands = commands.length
-
-      commands.forEach((command) => {
-        exec(command, (error, _stdout, _stderr) => {
-          if (error) {
-            logger.log(`Kill process command failed: ${command}, error: ${error.message}`)
-          } else {
-            logger.log(`Successfully executed: ${command}`)
-          }
-
-          completedCommands++
-          if (completedCommands === totalCommands) {
-            resolve()
-          }
-        })
-      })
-    }
+    })
   })
 }
 
@@ -96,14 +86,9 @@ const runOllama = async (): Promise<ChildProcess | null> => {
 
   const ollamaExecutable = path.join(binPath, executable)
 
-  // 确保文件存在并且可执行
+  // 确保文件存在
   if (!fs.existsSync(ollamaExecutable)) {
     throw new Error(`Ollama executable not found: ${ollamaExecutable}`)
-  }
-
-  // 在 macOS 和 Linux 上设置可执行权限
-  if (process.platform !== 'win32') {
-    fs.chmodSync(ollamaExecutable, '755')
   }
 
   // 设置环境变量
@@ -115,7 +100,8 @@ const runOllama = async (): Promise<ChildProcess | null> => {
     SYCL_CACHE_PERSISTENT: '1',
     OLLAMA_KEEP_ALIVE: '10m',
     OLLAMA_NUM_PARALLE: '2',
-    OLLAMA_HOST: `127.0.0.1:${port}`
+    OLLAMA_HOST: `127.0.0.1:${port}`,
+    OLLAMA_MODELS: ollamaModelsPath
   }
   // 运行 Ollama
   const ollamaProcess = spawn(ollamaExecutable, ['serve'], {
