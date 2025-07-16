@@ -236,7 +236,6 @@ const OllamaPage: FC = () => {
 
       const data = await response.json()
       const models = data.models || []
-      console.log('Fetched installed models:', models.length)
 
       setInstalledModels(models)
 
@@ -256,10 +255,6 @@ const OllamaPage: FC = () => {
       return
     }
 
-    console.log('🔄 开始同步已安装模型到本地模型库（只同步JSON中定义的模型）...')
-    console.log('已安装模型数量:', installedModels.length)
-    console.log('JSON中定义的模型数量:', availableModels.length)
-
     // 遍历已安装的模型
     installedModels.forEach((installedModel) => {
       const modelId = installedModel.name
@@ -275,13 +270,11 @@ const OllamaPage: FC = () => {
       })
 
       if (!matchedJsonModel) {
-        console.log(`⏭️ 跳过未在JSON中定义的模型: ${modelId}`)
         return // 不在 JSON 中定义的模型，跳过同步
       }
 
       // 检查是否已经同步过
       if (syncedModelsRef.current.has(modelId)) {
-        console.log(`📝 模型 "${modelId}" 已经同步过，跳过`)
         return
       }
 
@@ -302,27 +295,22 @@ const OllamaPage: FC = () => {
           // 模型不存在，添加新模型
           addModelToLocal(newModel)
           syncedModelsRef.current.add(modelId)
-          console.log(`✅ 已将 JSON 中定义的 Ollama 模型 "${newModel}" 添加到本地模型库`)
         } else {
           // 模型已存在，检查是否需要更新显示名称
           if (existingModel.name !== newModel.name) {
             localProviderHook.removeModel?.(existingModel)
             addModelToLocal(newModel)
-            console.log(`🔄 已更新 Ollama 模型 "${newModel.name}" 的显示名称`)
           }
           syncedModelsRef.current.add(modelId)
         }
       }
     })
-
-    console.log('✅ 模型同步完成')
   }, [installedModels, availableModels, localProvider, addModelToLocal, localProviderHook])
 
   // 获取可下载的模型列表
   const fetchAvailableModels = useCallback(async () => {
     try {
       if (!resourcesPath) {
-        console.error('Resources path not available')
         return
       }
 
@@ -378,7 +366,6 @@ const OllamaPage: FC = () => {
             const modelToRemove = localProvider.models.find((m) => m.id === modelName)
             if (modelToRemove) {
               localProviderHook.removeModel(modelToRemove)
-              console.log(`🗑️ 已将模型 "${modelName}" 从 local provider 中移除`)
             }
           }
 
@@ -386,7 +373,6 @@ const OllamaPage: FC = () => {
           syncedModelsRef.current.delete(modelName)
           // 清理下载完成记录
           completedDownloadsRef.current.delete(modelName)
-          console.log(`🗑️ 已将 Ollama 模型 "${modelName}" 从同步记录中移除`)
         } else {
           throw new Error('Delete failed')
         }
@@ -494,19 +480,6 @@ const OllamaPage: FC = () => {
         return installedModel.name === jsonModel.name || installedModel.name.startsWith(`${jsonModel.name}:`)
       })
     })
-
-    // 输出过滤统计信息
-    const totalInstalled = installedModels.length
-    const jsonDefined = filtered.length
-    const filtered_out = totalInstalled - jsonDefined
-
-    if (totalInstalled > 0) {
-      console.log(`📊 已安装模型过滤统计: 总计${totalInstalled}个，JSON中定义${jsonDefined}个，过滤掉${filtered_out}个`)
-      if (filtered_out > 0) {
-        const filteredModels = installedModels.filter((m) => !filtered.includes(m))
-        console.log(`⏭️ 被过滤掉的模型:`, filteredModels.map((m) => m.name).join(', '))
-      }
-    }
 
     return filtered
   }, [installedModels, availableModels])
@@ -690,9 +663,7 @@ const OllamaPage: FC = () => {
                                       centered: true,
                                       maskClosable: false,
                                       onOk: () => deleteModel(model.name),
-                                      onCancel: () => {
-                                        console.log('用户取消删除模型:', model.name)
-                                      }
+                                      onCancel: () => {}
                                     })
                                   }}
                                 />

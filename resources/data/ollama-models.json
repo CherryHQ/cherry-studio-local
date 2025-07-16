@@ -31,11 +31,11 @@
   },
   {
     "showname": "bge-m3",
-    "name": "modelscope.cn/Embedding-GGUF/bge-m3-GGUF",
+    "name": "modelscope.cn/gpustack/bge-m3-GGUF",
     "description": "BGE-M3 embedding model - Multilingual embedding model for retrieval and similarity",
     "tags": ["Embedding", "Multilingual", "BGE", "Retrieval"],
     "type":"Embedding",
-    "size": "2.2GB",
+    "size": "1.2GB",
     "pullable": true,
     "source": "modelscope"
   }
