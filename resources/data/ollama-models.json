@@ -31,7 +31,7 @@
   },
   {
     "showname": "bge-m3",
-    "name": "modelscope.cn/gpustack/bge-m3-GGUF",
+    "name": "modelscope.cn/gpustack/bge-m3-GGUF:FP16",
     "description": "BGE-M3 embedding model - Multilingual embedding model for retrieval and similarity",
     "tags": ["Embedding", "Multilingual", "BGE", "Retrieval"],
     "type":"Embedding",
