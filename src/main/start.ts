@@ -100,6 +100,7 @@ const runOllama = async (): Promise<ChildProcess | null> => {
     SYCL_CACHE_PERSISTENT: '1',
     OLLAMA_KEEP_ALIVE: '10m',
     OLLAMA_NUM_PARALLE: '2',
+    OLLAMA_NUM_CTX: '32768',
     OLLAMA_HOST: `127.0.0.1:${port}`,
     OLLAMA_MODELS: ollamaModelsPath
   }
