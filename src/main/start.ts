@@ -148,21 +148,9 @@ const runOllama = async (): Promise<ChildProcess | null> => {
 // 清理所有ollama进程
 const cleanupOllamaProcesses = async (): Promise<void> => {
   logger.log('Starting Ollama processes cleanup...')
-
   try {
-    // 首先尝试优雅地关闭主进程
-    if (ollamaMainProcess && !ollamaMainProcess.killed) {
-      logger.log('Gracefully closing main Ollama process...')
-      ollamaMainProcess.kill('SIGTERM')
-
-      // 等待一段时间让进程优雅退出
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-    }
-
-    // 强制关闭所有相关进程
-    logger.log('Force killing all Ollama processes...')
+    // 直接强制杀掉所有相关进程
     await killOllamaProcesses()
-
     logger.log('Ollama processes cleanup completed')
   } catch (error) {
     logger.error('Error during Ollama cleanup:', error)
