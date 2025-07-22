@@ -163,8 +163,8 @@ const OllamaPage: FC = () => {
   const [isConnected, setIsConnected] = useState(false)
   const [checkingConnection, setCheckingConnection] = useState(false)
   const [showConfig, setShowConfig] = useState(false)
-  const [clickCount, setClickCount] = useState(0)
-  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null)
+  // const [clickCount, setClickCount] = useState(0)
+  const [clickTimeout] = useState<NodeJS.Timeout | null>(null) //, setClickTimeout
   const [renderError, setRenderError] = useState<string | null>(null)
 
   // 使用 useRef 来追踪已同步的模型，避免依赖循环
@@ -178,28 +178,28 @@ const OllamaPage: FC = () => {
     return <ErrorBoundary>{content}</ErrorBoundary>
   }, [])
 
-  // 处理设置图标点击
-  const handleConfigIconClick = useCallback(() => {
-    if (clickTimeout) {
-      clearTimeout(clickTimeout)
-    }
+  // // 处理设置图标点击
+  // const handleConfigIconClick = useCallback(() => {
+  //   if (clickTimeout) {
+  //     clearTimeout(clickTimeout)
+  //   }
 
-    const newCount = clickCount + 1
-    setClickCount(newCount)
+  //   const newCount = clickCount + 1
+  //   setClickCount(newCount)
 
-    if (newCount >= 5) {
-      setShowConfig(true)
-      setClickCount(0)
-      setClickTimeout(null)
-    } else {
-      // 设置2秒超时，如果没有继续点击则重置计数
-      const timeout = setTimeout(() => {
-        setClickCount(0)
-        setClickTimeout(null)
-      }, 2000)
-      setClickTimeout(timeout)
-    }
-  }, [clickCount, clickTimeout])
+  //   if (newCount >= 5) {
+  //     setShowConfig(true)
+  //     setClickCount(0)
+  //     setClickTimeout(null)
+  //   } else {
+  //     // 设置2秒超时，如果没有继续点击则重置计数
+  //     const timeout = setTimeout(() => {
+  //       setClickCount(0)
+  //       setClickTimeout(null)
+  //     }, 2000)
+  //     setClickTimeout(timeout)
+  //   }
+  // }, [clickCount, clickTimeout])
 
   // 清理超时器
   useEffect(() => {
@@ -588,8 +588,8 @@ const OllamaPage: FC = () => {
             )}
 
             {/* 当配置区域隐藏时显示的提示 */}
-            {!showConfig && <div onClick={handleConfigIconClick} style={{ height: '10px', marginBottom: 24 }} />}
-
+            {!showConfig && <div style={{ height: '10px', marginBottom: 24 }} />}
+            {/* onClick={handleConfigIconClick}  */}
             {!isConnected && (
               <Alert
                 message="无法连接到本地模型服务"
