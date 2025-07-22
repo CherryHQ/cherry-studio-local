@@ -35,6 +35,16 @@
     "description": "BGE-M3 embedding model - Multilingual embedding model for retrieval and similarity",
     "tags": ["Embedding", "Multilingual", "BGE", "Retrieval"],
     "type":"Embedding",
+    "size": "1.16GB",
+    "pullable": true,
+    "source": "modelscope"
+  },
+  {
+    "showname": "Qwen3-Embedding-0.6B",
+    "name": "modelscope.cn/Qwen/Qwen3-Embedding-0.6B-GGUF",
+    "description": "Qwen3-Embedding-0.6B - Multilingual embedding model for retrieval and similarity",
+    "tags": ["Embedding", "Multilingual", "Retrieval", "Search"],
+    "type": "Embedding",
     "size": "1.2GB",
     "pullable": true,
     "source": "modelscope"
