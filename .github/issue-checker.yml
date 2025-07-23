@@ -159,26 +159,6 @@ labels:
       - remove kind/documentation
 
   # Client labels
-  - name: client:linux
-    content: client:linux
-    regexes: '(?:[Ll]inux|[Uu]buntu|[Dd]ebian)'
-    skip-if:
-      - skip all
-      - skip client:linux
-    remove-if:
-      - remove all
-      - remove client:linux
-
-  - name: client:mac
-    content: client:mac
-    regexes: '(?:[Mm]ac|[Mm]acOS|[Oo]SX)'
-    skip-if:
-      - skip all
-      - skip client:mac
-    remove-if:
-      - remove all
-      - remove client:mac
-
   - name: client:win
     content: client:win
     regexes: '(?:[Ww]in|[Ww]indows)'
