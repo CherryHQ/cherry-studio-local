@@ -1,11 +1,11 @@
 {
-  "name": "CherryStudio",
+  "name": "CherryStudioIntel",
   "version": "1.4.11",
   "private": true,
   "description": "A powerful AI assistant for producer.",
   "main": "./out/main/index.js",
   "author": "support@cherry-ai.com",
-  "homepage": "https://github.com/CherryHQ/cherry-studio",
+  "homepage": "https://github.com/CherryHQ/cherry-studio-local",
   "workspaces": {
     "packages": [
       "local",

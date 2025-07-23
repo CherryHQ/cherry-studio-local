@@ -47,7 +47,7 @@ async function downloadBunBinary(platform, arch, version = DEFAULT_BUN_VERSION, 
   }
 
   // Create output directory structure
-  const binDir = path.join(os.homedir(), '.cherrystudio', 'bin')
+  const binDir = path.join(os.homedir(), '.cherrystudiointel', 'bin')
   // Ensure directories exist
   fs.mkdirSync(binDir, { recursive: true })
 

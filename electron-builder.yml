@@ -1,5 +1,5 @@
-appId: com.kangfenmao.CherryStudio
-productName: Cherry Studio
+appId: com.kangfenmao.CherryStudioIntel
+productName: Cherry Studio 酷睿版
 electronLanguages:
   - zh-CN
   - zh-TW
@@ -13,9 +13,9 @@ directories:
   buildResources: build
 
 protocols:
-  - name: Cherry Studio
+  - name: Cherry Studio Intel
     schemes:
-      - cherrystudio
+      - cherrystudioIntel
 files:
   - '**/*'
   - '!**/{.vscode,.yarn,.yarn-lock,.github,.cursorrules,.prettierrc}'
@@ -66,7 +66,7 @@ extraResources:
   - from: './ollama'
     to: 'ollama'
 win:
-  executableName: Cherry Studio
+  executableName: Cherry Studio 酷睿版
   artifactName: ${productName}-${version}-${arch}-setup.${ext}
   target:
     - target: nsis
@@ -86,31 +86,6 @@ nsis:
 portable:
   artifactName: ${productName}-${version}-${arch}-portable.${ext}
   buildUniversalInstaller: false
-mac:
-  entitlementsInherit: build/entitlements.mac.plist
-  notarize: false
-  artifactName: ${productName}-${version}-${arch}.${ext}
-  minimumSystemVersion: '20.1.0' # 最低支持 macOS 11.0
-  extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  target:
-    - target: dmg
-    - target: zip
-linux:
-  artifactName: ${productName}-${version}-${arch}.${ext}
-  target:
-    - target: AppImage
-    - target: deb
-  maintainer: electronjs.org
-  category: Utility
-  desktop:
-    entry:
-      StartupWMClass: CherryStudio
-  mimeTypes:
-    - x-scheme-handler/cherrystudio
 publish:
   provider: github
   owner: CherryHQ

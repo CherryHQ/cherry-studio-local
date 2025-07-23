@@ -14,7 +14,7 @@ let ollmaPath: string
 let binPath: string
 
 // Set ollamaModelsPath first
-const ollamaModelsPath = path.join(os.homedir(), '.cherrystudio', 'models')
+const ollamaModelsPath = path.join(os.homedir(), '.cherrystudiointel', 'models')
 fs.mkdirSync(ollamaModelsPath, { recursive: true })
 // Create output directory structure
 if (app.isPackaged) {

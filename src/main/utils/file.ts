@@ -196,7 +196,7 @@ export function getFilesDir() {
 }
 
 export function getConfigDir() {
-  return path.join(os.homedir(), '.cherrystudio', 'config')
+  return path.join(os.homedir(), '.cherrystudiointel', 'config')
 }
 
 export function getCacheDir() {
