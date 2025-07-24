@@ -1,5 +1,5 @@
 appId: com.kangfenmao.CherryStudioIntel
-productName: Cherry Studio Intel
+productName: Cherry Studio 酷睿版
 electronLanguages:
   - zh-CN
   - zh-TW
@@ -67,7 +67,7 @@ extraResources:
     to: 'ollama'
 win:
   executableName: Cherry Studio 酷睿版
-  artifactName: ${productName}-${version}-${arch}-setup.${ext}
+  artifactName: Cherry-Studio-intel-${version}-${arch}-setup.${ext}
   target:
     - target: nsis
     - target: portable
@@ -75,7 +75,7 @@ win:
     sign: scripts/win-sign.js
   verifyUpdateCodeSignature: false
 nsis:
-  artifactName: ${productName}-${version}-${arch}-setup.${ext}
+  artifactName: Cherry-Studio-intel-${version}-${arch}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
@@ -84,7 +84,7 @@ nsis:
   include: build/nsis-installer.nsh
   buildUniversalInstaller: false
 portable:
-  artifactName: ${productName}-${version}-${arch}-portable.${ext}
+  artifactName: Cherry-Studio-intel-${version}-${arch}-portable.${ext}
   buildUniversalInstaller: false
 publish:
   provider: github
