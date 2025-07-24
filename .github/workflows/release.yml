@@ -44,30 +44,30 @@ jobs:
         with:
           node-version: 20
 
-      - name: macos-latest dependencies fix
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install python-setuptools
+      # - name: macos-latest dependencies fix
+      #   if: matrix.os == 'macos-latest'
+      #   run: |
+      #     brew install python-setuptools
 
-      - name: Install corepack
-        run: corepack enable && corepack prepare yarn@4.6.0 --activate
+      # - name: Install corepack
+      #   run: corepack enable && corepack prepare yarn@4.6.0 --activate
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+      # - name: Get yarn cache directory path
+      #   id: yarn-cache-dir-path
+      #   run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
-      - name: Cache yarn dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+      # - name: Cache yarn dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ${{ steps.yarn-cache-dir-path.outputs.dir }}
+      #       node_modules
+      #     key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-yarn-
 
-      - name: Install Dependencies
-        run: yarn install
+      # - name: Install Dependencies
+      #   run: yarn install
 
       - name: Build Windows
         if: matrix.os == 'windows-latest'
