@@ -178,7 +178,7 @@ export default class AppUpdater {
     }
 
     this.autoUpdater.channel = UpgradeChannel.LATEST
-    this.autoUpdater.setFeedURL(FeedUrl.PRODUCTION)
+    this.autoUpdater.setFeedURL(FeedUrl.GITHUB_LATEST)
 
     const ipCountry = await this._getIpCountry()
     logger.info('ipCountry', ipCountry)

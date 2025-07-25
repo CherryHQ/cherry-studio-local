@@ -405,9 +405,9 @@ export const GB = 1024 * MB
 export const defaultLanguage = 'en-US'
 
 export enum FeedUrl {
-  PRODUCTION = 'https://releases.cherry-ai.com',
+  // PRODUCTION = 'https://releases.cherry-ai.com',
   GITHUB_LATEST = 'https://github.com/CherryHQ/cherry-studio-local/releases/latest/download',
-  PRERELEASE_LOWEST = 'https://github.com/CherryHQ/cherry-studio-local/releases/download/v1.4.0'
+  PRERELEASE_LOWEST = 'https://github.com/CherryHQ/cherry-studio-local/releases/download/v1.4.11'
 }
 
 export enum UpgradeChannel {
