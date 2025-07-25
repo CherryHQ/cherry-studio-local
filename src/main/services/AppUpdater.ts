@@ -72,7 +72,7 @@ export default class AppUpdater {
   private async _getPreReleaseVersionFromGithub(channel: UpgradeChannel) {
     try {
       logger.info('get pre release version from github', channel)
-      const responses = await fetch('https://api.github.com/repos/CherryHQ/cherry-studio/releases?per_page=8', {
+      const responses = await fetch('https://api.github.com/repos/CherryHQ/cherry-studio-local/releases?per_page=8', {
         headers: {
           Accept: 'application/vnd.github+json',
           'X-GitHub-Api-Version': '2022-11-28',
@@ -91,7 +91,7 @@ export default class AppUpdater {
       }
 
       logger.info('release info', release.tag_name)
-      return `https://github.com/CherryHQ/cherry-studio/releases/download/${release.tag_name}`
+      return `https://github.com/CherryHQ/cherry-studio-local/releases/download/${release.tag_name}`
     } catch (error) {
       logger.error('Failed to get latest not draft version from github:', error)
       return null

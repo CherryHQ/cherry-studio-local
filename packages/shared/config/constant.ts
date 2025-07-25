@@ -406,8 +406,8 @@ export const defaultLanguage = 'en-US'
 
 export enum FeedUrl {
   PRODUCTION = 'https://releases.cherry-ai.com',
-  GITHUB_LATEST = 'https://github.com/CherryHQ/cherry-studio/releases/latest/download',
-  PRERELEASE_LOWEST = 'https://github.com/CherryHQ/cherry-studio/releases/download/v1.4.0'
+  GITHUB_LATEST = 'https://github.com/CherryHQ/cherry-studio-local/releases/latest/download',
+  PRERELEASE_LOWEST = 'https://github.com/CherryHQ/cherry-studio-local/releases/download/v1.4.0'
 }
 
 export enum UpgradeChannel {

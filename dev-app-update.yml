@@ -4,5 +4,5 @@
 # provider: github
 # repo: cherry-studio
 # owner: kangfenmao
-provider: generic
-url: https://releases.cherry-ai.com
+# provider: generic
+# url: https://releases.cherry-ai.com
