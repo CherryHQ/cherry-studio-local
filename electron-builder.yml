@@ -70,7 +70,7 @@ win:
   artifactName: Cherry-Studio-intel-${version}-${arch}-setup.${ext}
   target:
     - target: nsis
-    - target: portable
+      arch: x64
   signtoolOptions:
     sign: scripts/win-sign.js
   verifyUpdateCodeSignature: false
