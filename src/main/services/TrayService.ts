@@ -51,7 +51,7 @@ export class TrayService {
       this.tray.setContextMenu(this.contextMenu)
     }
 
-    this.tray.setToolTip('Cherry Studio 酷睿版')
+    this.tray.setToolTip('Cherry Studio for 酷睿 Ultra')
 
     this.tray.on('right-click', () => {
       if (this.contextMenu) {
