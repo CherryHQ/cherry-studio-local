@@ -289,7 +289,7 @@ const AboutSettings: FC = () => {
             <Github size={18} />
             {t('settings.about.feedback.title')}
           </SettingRowTitle>
-          <Button onClick={() => onOpenWebsite('https://github.com/CherryHQ/cherry-studio/issues/new/choose')}>
+          <Button onClick={() => onOpenWebsite('https://github.com/CherryHQ/cherry-studio-local/issues/new/choose')}>
             {t('settings.about.feedback.button')}
           </Button>
         </SettingRow>
